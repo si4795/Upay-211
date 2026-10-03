@@ -102,6 +102,32 @@ void main() {
       expect(scamRes.category, 'Credential Request');
       expect(scamRes.confidence, greaterThan(0.9));
     });
+
+    test('AuditLogEntry serializes and parses properly', () {
+      final log = AuditLogEntry.fromJson({
+        'log_id': 'AUD-1001',
+        'analyst_id': 'ADMIN001',
+        'action': 'HOLD',
+        'transaction_id': 'TXN-10342',
+        'timestamp': '2026-10-03T12:00:00',
+        'notes': 'Observed new device and unusually large transaction.',
+      });
+      expect(log.logId, 'AUD-1001');
+      expect(log.action, 'HOLD');
+      expect(log.analystId, 'ADMIN001');
+      expect(log.transactionId, 'TXN-10342');
+    });
+
+    test('ModelEvaluationData calculates synthetic metrics correctly', () {
+      const eval = ModelEvaluationData();
+      expect(eval.precision, greaterThanOrEqualTo(0.99));
+      expect(eval.recall, 1.00);
+      expect(eval.f1Score, greaterThan(0.99));
+      expect(eval.rocAuc, 1.00);
+      expect(eval.confusionMatrix['true_positive'], 240);
+      expect(eval.confusionMatrix['false_positive'], 1);
+      expect(eval.featuresRanked.length, 5);
+    });
   });
 
   group('UI Smoke Tests', () {

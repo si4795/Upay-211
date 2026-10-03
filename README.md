@@ -108,6 +108,50 @@ The project is structured and completed across the 4 required phases:
   - Account Takeover (ATO) correlation (New Device + Geo-Hop + Failed PINs + Spike).
   - Bangla Scam NLP Prototype with instant keyword attribution and confidence scoring.
   - 3 Official Predefined Demo Scenarios for instant hackathon evaluation.
+- [x] **Phase 5: Real-Time Trust & Risk Intelligence**
+  - WebSocket event stream (`/api/v1/ws/risk-events`) delivering live telemetry to admin consoles without manual refresh.
+  - Animated `⚠ HIGH-RISK TRANSACTION DETECTED` real-time banner with direct `[Open Investigation]` drill-down.
+  - Real-time customer & admin transaction status synchronization (`SUCCESS`, `VERIFY_REQUIRED`, `HOLD`).
+- [x] **Phase 6: Advanced Fraud Intelligence**
+  - Behavioral baselines for users (typical amount, time, velocity, trusted devices, known receivers).
+  - Multi-signal Account Takeover (ATO) detection module with confidence levels.
+  - Transaction velocity tracking (5-minute and 1-hour windows).
+  - New receiver risk intelligence (Trusted, Known, New, Frequently Reported).
+- [x] **Phase 7: Graph & Network Intelligence**
+  - NetworkX directed transaction graph ($G=(V, E)$).
+  - Degree centrality ranking to uncover high-connectivity hubs.
+  - Money-mule fan-in aggregator and fan-out smurfing disperser detection.
+  - Circular transaction loop detection ($A \rightarrow B \rightarrow C \rightarrow A$).
+- [x] **Phase 8: Fraud Case Management & Responsible AI**
+  - Fraud case creation, lifecycle status transitions, and analyst notes capture.
+  - Strict Human-in-the-Loop principle (AI proposes risk signals; fraud analysts make binding decisions).
+  - False Positive management workflow for model feedback.
+  - Explainable AI (SHAP TreeExplainer feature contribution breakdown).
+- [x] **Phase 9: Security, Privacy & System Hardening**
+  - Zero real credentials stored (simulated demo auth).
+  - PIN segregation: PIN validated at auth layer and strictly excluded from ML models.
+  - Strict Pydantic v2 API validation and rate-limiting safeguards.
+  - Immutable Analyst Audit Trail recording all interventions.
+- [x] **Phase 10: Performance & Reliability**
+  - Graceful fallback policies for ML and backend offline states.
+  - Sanitized logging: PINs, OTPs, and passwords never written to logs.
+- [x] **Phase 11: Polished UI/UX**
+  - Customer UI: Clean, trustworthy, modern Bangladeshi MFS design in Bengali & English.
+  - Admin UI: High-contrast fintech cybersecurity console with real-time charts and investigation consoles.
+- [x] **Phase 12: Demo Mode & Presentation Readiness**
+  - 1-tap preset demo scenario runner (Normal, Suspicious, High-Risk ATO).
+  - Fast demo reset and reproducible state transitions.
+- [x] **Phase 13: Presentation & Storytelling**
+  - Customer story vs. Analyst investigation workflow narrative.
+- [x] **Phase 14: Model Evaluation**
+  - Statistical validation on held-out test split: Precision 99.58%, Recall 100.00%, F1 0.9979, ROC-AUC 1.0000.
+  - Explicit *"Synthetic Dataset Evaluation"* disclaimer.
+- [x] **Phase 15: Documentation & Submission Quality**
+  - Comprehensive documentation in `docs/` (`API.md`, `ML_PIPELINE.md`, `DEMO.md`, `SECURITY.md`, `architecture.md`).
+- [x] **Phase 16: Final Hackathon Verification**
+  - 10/10 Pytest backend tests passing.
+  - 10/10 Flutter tests passing.
+  - 0 issues on `flutter analyze`.
 
 ---
 
@@ -125,13 +169,13 @@ You can launch and verify the 3 predefined test scenarios directly from the app 
 * **Parameters**: ৳8,000 • New Receiver • Moderate Amount Deviation
 * **Backend Evaluation**: Medium Risk (Score ~56/100) $\rightarrow$ Decision: `VERIFY`
 * **Customer Receives**: *"Additional verification is required to complete this transaction."*
-* **Admin Console**: Orange status, SHAP highlights new recipient weight (42%) and deviation (30%).
+* **Admin Console**: Orange status, SHAP highlights new recipient weight and deviation.
 
 ### Scenario 3 — High-Risk Fraud / Account Takeover (ATO)
 * **Parameters**: ৳50,000 • New Device (`DEVICE009`) • Chattogram Geo-Hop • Rapid Burst (8 txns/hr) • 3 PIN Failures
 * **Backend Evaluation**: High Risk (Score 94/100) $\rightarrow$ Decision: `HOLD` / `BLOCK`
 * **Customer Receives**: Neutral message — *"Transaction temporarily unavailable. For your security, this transaction needs additional review."*
-* **Admin Console**: Red status (Score: 94/100), SHAP breakdown (Unrecognized Device 38%, Amount Deviation 32%, Velocity 24%), option to click `[HOLD]` or `[BLOCK]`.
+* **Admin Console**: Real-time WebSocket banner, SHAP breakdown (Unrecognized Device 38%, Amount Deviation 32%, Velocity 24%), option to click `[HOLD]` or `[BLOCK]`.
 
 ---
 
@@ -155,10 +199,11 @@ python ml/evaluate_model.py
 
 ### Step 2: Start the FastAPI Backend Server
 ```bash
-uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 * **API Documentation (Swagger UI)**: `http://127.0.0.1:8000/docs`
 * **Health Check**: `http://127.0.0.1:8000/api/v1/health`
+* **WebSocket Stream**: `ws://127.0.0.1:8000/api/v1/ws/risk-events`
 
 ### Step 3: Run the Flutter Application
 ```bash
@@ -176,23 +221,29 @@ flutter run -d windows
 
 ---
 
-## 8. Environment Variables & API Specifications
-
-### Key Endpoints
+## 8. Key Endpoints & Architecture Reference
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/v1/health` | Service health and active AI components |
 | `POST` | `/api/v1/predict-risk` | Dry-run risk assessment (SHAP factors & scores) |
-| `POST` | `/api/v1/transactions` | Execute transaction through the risk engine |
-| `GET` | `/api/v1/transactions/{user_id}` | Safe customer statement (no scores exposed) |
-| `GET` | `/api/v1/admin/risk-events` | Live feed of flagged risk events |
+| `POST` | `/api/v1/transactions` | Execute transaction through the risk engine & broadcast |
+| `WS` | `/api/v1/ws/risk-events` | Real-time WebSocket stream for Admin Dashboard |
+| `GET` | `/api/v1/admin/risk-events` | Live feed of recent risk events |
 | `GET` | `/api/v1/admin/transactions` | Full transactions with risk scores & factors |
-| `POST` | `/api/v1/admin/actions` | Record analyst action (`HOLD`, `BLOCK`, etc.) |
-| `GET` | `/api/v1/admin/cases` | Manage fraud cases and statuses |
-| `GET` | `/api/v1/admin/analytics` | Aggregated metrics and chart distributions |
+| `POST` | `/api/v1/admin/actions` | Record analyst action (`HOLD`, `BLOCK`, `REVIEW`) |
+| `GET` | `/api/v1/admin/audit-logs` | Retrieve immutable analyst audit trail |
+| `GET` | `/api/v1/admin/user-profile/{id}` | Behavioral profile & baselines for a user |
+| `GET` | `/api/v1/admin/model-evaluation`| Held-out test split evaluation metrics & confusion matrix |
 | `GET` | `/api/v1/admin/graph` | NetworkX money-mule topology and nodes |
 | `POST` | `/api/v1/admin/scam-nlp` | Bangla scam-text classifier prototype |
+
+Detailed documentation:
+- [Architecture Guide](docs/architecture.md)
+- [API Documentation](docs/API.md)
+- [Machine Learning Pipeline](docs/ML_PIPELINE.md)
+- [Hackathon Demo Guide](docs/DEMO.md)
+- [Security & Privacy Guide](docs/SECURITY.md)
 
 ---
 
@@ -211,7 +262,10 @@ python -m pytest backend/tests/test_backend.py -v
 * `test_admin_endpoints`: PASSED
 * `test_networkx_graph_intelligence`: PASSED
 * `test_bangla_scam_nlp`: PASSED
-* **Overall: 7 / 7 PASSED (100%)**
+* `test_audit_logs_and_user_profile`: PASSED
+* `test_model_evaluation_metrics`: PASSED
+* `test_websocket_connection`: PASSED
+* **Overall: 10 / 10 PASSED (100%)**
 
 ### Flutter Test Suite
 Run the Flutter test suite:
@@ -223,8 +277,16 @@ flutter test
 * Model serialization tests (User, Wallet, Transaction, RiskResult): PASSED
 * Admin analytics & fraud case lifecycle tests: PASSED
 * Bangla scam keyword matching tests: PASSED
+* Audit log serialization and parsing tests: PASSED
+* Model evaluation synthetic metric tests: PASSED
 * UI widget smoke tests: PASSED
-* **Overall: 8 / 8 PASSED (100%)**
+* **Overall: 10 / 10 PASSED (100%)**
+
+### Flutter Analysis
+```bash
+flutter analyze
+```
+**Result**: `No issues found!` (0 errors, 0 warnings, 0 lints).
 
 ---
 

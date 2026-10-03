@@ -1,18 +1,8 @@
 import 'risk_result.dart';
 
-enum TransactionStatus {
-  success,
-  verifyRequired,
-  hold,
-  blocked,
-}
+enum TransactionStatus { success, verifyRequired, hold, blocked }
 
-enum TransactionType {
-  sendMoney,
-  cashOut,
-  addMoney,
-  payBill,
-}
+enum TransactionType { sendMoney, cashOut, addMoney, payBill }
 
 class TransactionModel {
   final String id;
@@ -105,21 +95,30 @@ class TransactionModel {
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
-      id: json['transaction_id'] as String? ?? 'TXN-${DateTime.now().millisecondsSinceEpoch}',
+      id:
+          json['transaction_id'] as String? ??
+          'TXN-${DateTime.now().millisecondsSinceEpoch}',
       userId: json['user_id'] as String? ?? 'USER001',
       receiverId: json['receiver_id'] as String? ?? '',
       receiverName: json['receiver_name'] as String? ?? 'Recipient',
       receiverPhone: json['receiver_phone'] as String? ?? '',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       fee: (json['fee'] as num?)?.toDouble() ?? 5.0,
-      total: (json['total'] as num?)?.toDouble() ?? ((json['amount'] as num?)?.toDouble() ?? 0.0) + 5.0,
-      timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp'] as String) : DateTime.now(),
+      total:
+          (json['total'] as num?)?.toDouble() ??
+          ((json['amount'] as num?)?.toDouble() ?? 0.0) + 5.0,
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'] as String)
+          : DateTime.now(),
       type: _parseType(json['transaction_type'] as String?),
       status: _parseStatus(json['status'] as String?),
-      customerMessage: json['customer_message'] as String? ?? 'Money Sent Successfully',
+      customerMessage:
+          json['customer_message'] as String? ?? 'Money Sent Successfully',
       deviceId: json['device_id'] as String? ?? 'DEVICE001',
       location: json['location'] as String? ?? 'Dhaka',
-      riskResult: json['risk_result'] != null ? RiskResult.fromJson(json['risk_result'] as Map<String, dynamic>) : null,
+      riskResult: json['risk_result'] != null
+          ? RiskResult.fromJson(json['risk_result'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -153,4 +152,3 @@ class TransactionModel {
     }
   }
 }
-

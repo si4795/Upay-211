@@ -137,3 +137,42 @@ def test_bangla_scam_nlp(client):
     res_norm = client.post("/api/v1/admin/scam-nlp", json=normal_payload)
     assert res_norm.status_code == 200
     assert res_norm.json()["is_scam"] is False
+
+def test_audit_logs_and_user_profile(client):
+    # Test audit logs endpoint
+    res_audit = client.get("/api/v1/admin/audit-logs")
+    assert res_audit.status_code == 200
+    audit_data = res_audit.json()
+    assert isinstance(audit_data, list)
+    assert len(audit_data) >= 1
+    assert "analyst_id" in audit_data[0]
+    assert "action" in audit_data[0]
+
+    # Test user profile endpoint
+    res_profile = client.get("/api/v1/admin/user-profile/USER001")
+    assert res_profile.status_code == 200
+    profile_data = res_profile.json()
+    assert profile_data["user_id"] == "USER001"
+    assert "avg_transaction_amount" in profile_data
+    assert "typical_location" in profile_data
+    assert "trusted_devices" in profile_data
+
+def test_model_evaluation_metrics(client):
+    res = client.get("/api/v1/admin/model-evaluation")
+    assert res.status_code == 200
+    data = res.json()
+    assert "metrics" in data
+    assert "confusion_matrix" in data
+    assert "features_ranked" in data
+    assert "Synthetic Dataset Evaluation" in data["dataset_source"]
+    assert data["metrics"]["precision"] >= 0.95
+    assert data["metrics"]["recall"] >= 0.95
+
+def test_websocket_connection(client):
+    with client.websocket_connect("/api/v1/ws/risk-events") as websocket:
+        data = websocket.receive_json()
+        assert data["type"] == "CONNECTION_ESTABLISHED"
+        assert "recent_events" in data
+        websocket.send_text("ping")
+        pong = websocket.receive_json()
+        assert pong["type"] == "PONG"

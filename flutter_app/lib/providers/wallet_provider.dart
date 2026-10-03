@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/constants/app_constants.dart';
 import '../models/wallet.dart';
 
@@ -27,9 +28,7 @@ class WalletProvider extends ChangeNotifier {
   }
 
   void addAmount(double amount) {
-    _wallet = _wallet.copyWith(
-      balance: _wallet.balance + amount,
-    );
+    _wallet = _wallet.copyWith(balance: _wallet.balance + amount);
     notifyListeners();
   }
 
@@ -38,4 +37,3 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

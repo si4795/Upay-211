@@ -2,13 +2,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .services.risk_engine import RiskEngine
-from .api.routes import health, transactions, risk, admin
+from .services.event_broadcaster import EventBroadcaster
+from .api.routes import health, transactions, risk, admin, websocket
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize shared RiskEngine instance on startup
-    print("[Startup] Initializing RiskEngine, ML models, and NetworkX Graph...")
-    engine = RiskEngine()
+    # Initialize shared EventBroadcaster and RiskEngine on startup
+    print("[Startup] Initializing EventBroadcaster, RiskEngine, ML models, and NetworkX Graph...")
+    broadcaster = EventBroadcaster()
+    app.state.broadcaster = broadcaster
+    engine = RiskEngine(broadcaster=broadcaster)
     
     # Pre-seed realistic transactions for immediate demo and testing
     seed_txns = [
@@ -77,6 +80,7 @@ app.include_router(health.router, prefix="/api/v1")
 app.include_router(transactions.router, prefix="/api/v1")
 app.include_router(risk.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
+app.include_router(websocket.router, prefix="/api/v1")
 
 @app.get("/")
 def root():

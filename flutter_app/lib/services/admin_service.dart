@@ -5,6 +5,7 @@ import 'api_service.dart';
 
 class AdminService {
   final ApiService _apiService = ApiService();
+  ApiService get apiService => _apiService;
 
   Future<AnalyticsData> fetchAnalytics() async {
     try {
@@ -18,9 +19,9 @@ class AdminService {
 
   Future<List<TransactionModel>> fetchAdminTransactions() async {
     try {
-      final res = await _apiService.get('/api/v1/admin/transactions');
-      if (res is List) {
-        return (res as List).map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)).toList();
+      final res = await _apiService.getList('/api/v1/admin/transactions');
+      if (res.isNotEmpty) {
+        return res.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)).toList();
       }
     } catch (_) {}
 
@@ -115,9 +116,9 @@ class AdminService {
 
   Future<List<AdminFraudCase>> fetchFraudCases() async {
     try {
-      final res = await _apiService.get('/api/v1/admin/cases');
-      if (res is List) {
-        return (res as List).map((e) => AdminFraudCase.fromJson(e as Map<String, dynamic>)).toList();
+      final res = await _apiService.getList('/api/v1/admin/cases');
+      if (res.isNotEmpty) {
+        return res.map((e) => AdminFraudCase.fromJson(e as Map<String, dynamic>)).toList();
       }
     } catch (_) {}
 
@@ -264,6 +265,65 @@ class AdminService {
         confidence: 0.12,
         detectedKeywords: [],
       );
+    }
+  }
+
+  Future<List<AuditLogEntry>> fetchAuditLogs() async {
+    try {
+      final res = await _apiService.getList('/api/v1/admin/audit-logs');
+      if (res.isNotEmpty) {
+        return res.map((e) => AuditLogEntry.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    } catch (_) {}
+    return [
+      AuditLogEntry(
+        logId: 'AUD-1001',
+        analystId: 'ADMIN001',
+        action: 'HOLD',
+        transactionId: 'TXN-10342',
+        timestamp: DateTime.now().subtract(const Duration(minutes: 15)).toIso8601String(),
+        notes: 'Observed new device and unusually large transaction compared with normal baseline.',
+      ),
+      AuditLogEntry(
+        logId: 'AUD-1002',
+        analystId: 'ADMIN002',
+        action: 'REVIEW',
+        transactionId: 'TXN-10341',
+        timestamp: DateTime.now().subtract(const Duration(minutes: 45)).toIso8601String(),
+        notes: 'Triggered automated OTP challenge verification for new unverified recipient.',
+      ),
+    ];
+  }
+
+  Future<ModelEvaluationData> fetchModelEvaluation() async {
+    try {
+      final res = await _apiService.get('/api/v1/admin/model-evaluation');
+      return ModelEvaluationData.fromJson(res);
+    } catch (_) {
+      return const ModelEvaluationData();
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchUserProfile(String userId) async {
+    try {
+      return await _apiService.get('/api/v1/admin/user-profile/$userId');
+    } catch (_) {
+      return {
+        'user_id': userId,
+        'name': 'Karim Ahmed',
+        'phone': '01712345678',
+        'avg_transaction_amount': 650.0,
+        'typical_hours': '10 AM – 8 PM',
+        'avg_transactions_per_day': 3,
+        'typical_location': 'Dhaka',
+        'trusted_devices': ['DEVICE001', 'DEVICE002'],
+        'known_receivers': {
+          'USER102': 'Rahim (Trusted)',
+          'USER245': 'Karim (Known)',
+          'MERCHANT01': 'Hasan (Known Merchant)'
+        },
+        'reported_suspicious_receivers': ['USER_ROGUE_99', '01999887766'],
+      };
     }
   }
 }

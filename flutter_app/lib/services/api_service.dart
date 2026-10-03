@@ -36,6 +36,36 @@ class ApiService {
     }
   }
 
+  String get wsUrl {
+    if (baseUrl.startsWith('https://')) {
+      return baseUrl.replaceFirst('https://', 'wss://');
+    }
+    return baseUrl.replaceFirst('http://', 'ws://');
+  }
+
+  Future<dynamic> getJson(String endpoint) async {
+    final uri = Uri.parse('$baseUrl$endpoint');
+    try {
+      final response = await http
+          .get(uri, headers: _headers)
+          .timeout(const Duration(seconds: 5));
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return jsonDecode(utf8.decode(response.bodyBytes));
+      } else {
+        throw Exception('API error: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('GET $endpoint failed: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<dynamic>> getList(String endpoint) async {
+    final res = await getJson(endpoint);
+    if (res is List) return res;
+    return [];
+  }
+
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
     final uri = Uri.parse('$baseUrl$endpoint');
     try {

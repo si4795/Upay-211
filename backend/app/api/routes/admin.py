@@ -41,15 +41,22 @@ def take_admin_action(payload: AdminActionRequest, request: Request):
                 "event": f"Action {payload.action} taken by {payload.analyst_id}"
             })
 
+    # Audit log recording
+    engine.audit_service.record_action(
+        analyst_id=payload.analyst_id,
+        action=payload.action,
+        transaction_id=payload.transaction_id,
+        notes=payload.notes
+    )
+
     record = AdminActionRecord(
-        action_id=f"ACT-{len(engine.admin_actions) + 1}",
+        action_id=f"ACT-{len(engine.audit_service.audit_logs)}",
         transaction_id=payload.transaction_id,
         action=payload.action,
         analyst_id=payload.analyst_id,
         timestamp=datetime.now().isoformat(),
         notes=payload.notes
     )
-    engine.admin_actions.insert(0, record.model_dump())
     return record
 
 @router.get("/cases", response_model=List[FraudCase])
@@ -177,4 +184,19 @@ def analyze_bangla_scam_text(payload: BanglaScamCheckRequest):
         confidence=confidence,
         detected_keywords=matched_keywords
     )
+
+@router.get("/audit-logs")
+def get_audit_logs(request: Request, limit: int = 50):
+    engine = request.app.state.risk_engine
+    return engine.audit_service.get_logs(limit)
+
+@router.get("/user-profile/{user_id}")
+def get_user_profile(user_id: str, request: Request):
+    engine = request.app.state.risk_engine
+    return engine.behavior_engine.get_user_profile(user_id)
+
+@router.get("/model-evaluation")
+def get_model_evaluation(request: Request):
+    engine = request.app.state.risk_engine
+    return engine.get_model_evaluation()
 
