@@ -4,9 +4,10 @@ import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/models/transaction.dart';
 import 'package:flutter_app/models/risk_result.dart';
 import 'package:flutter_app/models/wallet.dart';
+import 'package:flutter_app/models/admin_intelligence.dart';
 
 void main() {
-  group('Phase 1 - Model & Logic Tests', () {
+  group('Phase 1 & 2 - Model & Logic Tests', () {
     test('User model serializes and defaults correctly', () {
       const user = User(
         id: 'USER001',
@@ -61,7 +62,49 @@ void main() {
     });
   });
 
-  group('Phase 1 - UI Smoke Tests', () {
+  group('Phase 3 & 4 - Admin & Intelligence Tests', () {
+    test('AnalyticsData parses default metrics accurately', () {
+      const data = AnalyticsData();
+      expect(data.totalTransactions, 25430);
+      expect(data.highRiskCount, 42);
+      expect(data.mediumRiskCount, 186);
+      expect(data.blockedCount, 31);
+      expect(data.underReviewCount, 18);
+    });
+
+    test('AdminFraudCase updates lifecycle status cleanly', () {
+      final fraudCase = AdminFraudCase(
+        caseId: 'CASE-0001',
+        userId: 'USER001',
+        transactionId: 'TXN-10342',
+        amount: 50000.0,
+        riskScore: 94,
+        riskLevel: 'HIGH',
+        reason: 'Unrecognized Device + Rapid Velocity Burst',
+        status: 'Open',
+        assignedAnalyst: 'ADMIN001',
+        createdTime: 'Today, 12:42 PM',
+      );
+      expect(fraudCase.status, 'Open');
+      fraudCase.status = 'Under Review';
+      expect(fraudCase.status, 'Under Review');
+    });
+
+    test('BanglaScamResult identifies credential fraud signals', () {
+      const scamRes = BanglaScamResult(
+        text: 'upay থেকে বলছি আপনার PIN দিন',
+        isScam: true,
+        category: 'Credential Request',
+        confidence: 0.96,
+        detectedKeywords: ['PIN Request'],
+      );
+      expect(scamRes.isScam, isTrue);
+      expect(scamRes.category, 'Credential Request');
+      expect(scamRes.confidence, greaterThan(0.9));
+    });
+  });
+
+  group('UI Smoke Tests', () {
     testWidgets('App renders UpayApp and SplashScreen', (WidgetTester tester) async {
       await tester.pumpWidget(const UpayApp());
       expect(find.text('upay'), findsWidgets);

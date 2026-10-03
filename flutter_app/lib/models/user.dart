@@ -72,9 +72,14 @@ class User {
       email: json['email'] as String? ?? '',
       avatarUrl: json['avatarUrl'] as String?,
       accountAgeDays: json['accountAgeDays'] as int? ?? 320,
-      trustedDevices: (json['trustedDevices'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? ['DEVICE001'],
+      trustedDevices:
+          (json['trustedDevices'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          ['DEVICE001'],
       currentDeviceId: json['currentDeviceId'] as String? ?? 'DEVICE001',
-      currentLocation: json['currentLocation'] as String? ?? 'Dhaka, Bangladesh',
+      currentLocation:
+          json['currentLocation'] as String? ?? 'Dhaka, Bangladesh',
       isFlagged: json['isFlagged'] as bool? ?? false,
     );
   }

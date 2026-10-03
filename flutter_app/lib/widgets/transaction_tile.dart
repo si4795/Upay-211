@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../core/constants/colors.dart';
 import '../core/utils/formatters.dart';
 import '../models/transaction.dart';
@@ -8,24 +9,43 @@ class TransactionTile extends StatelessWidget {
   final TransactionModel transaction;
   final VoidCallback? onTap;
 
-  const TransactionTile({
-    super.key,
-    required this.transaction,
-    this.onTap,
-  });
+  const TransactionTile({super.key, required this.transaction, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final (IconData icon, Color iconColor, String titlePrefix) = switch (transaction.type) {
-      TransactionType.sendMoney => (Icons.arrow_upward_rounded, Colors.redAccent, 'Send Money to '),
-      TransactionType.cashOut => (Icons.account_balance_wallet_outlined, Colors.orange, 'Cash Out '),
-      TransactionType.addMoney => (Icons.arrow_downward_rounded, Colors.green, 'Add Money from '),
-      TransactionType.payBill => (Icons.receipt_outlined, Colors.purple, 'Pay Bill: '),
+    final (
+      IconData icon,
+      Color iconColor,
+      String titlePrefix,
+    ) = switch (transaction.type) {
+      TransactionType.sendMoney => (
+        Icons.arrow_upward_rounded,
+        Colors.redAccent,
+        'Send Money to ',
+      ),
+      TransactionType.cashOut => (
+        Icons.account_balance_wallet_outlined,
+        Colors.orange,
+        'Cash Out ',
+      ),
+      TransactionType.addMoney => (
+        Icons.arrow_downward_rounded,
+        Colors.green,
+        'Add Money from ',
+      ),
+      TransactionType.payBill => (
+        Icons.receipt_outlined,
+        Colors.purple,
+        'Pay Bill: ',
+      ),
     };
 
     final (String statusText, Color statusColor) = switch (transaction.status) {
       TransactionStatus.success => ('সফল', UpayColors.riskLow),
-      TransactionStatus.verifyRequired => ('যাচাই প্রয়োজন', UpayColors.riskMedium),
+      TransactionStatus.verifyRequired => (
+        'যাচাই প্রয়োজন',
+        UpayColors.riskMedium,
+      ),
       TransactionStatus.hold => ('পর্যালোচনাধীন', UpayColors.riskMedium),
       TransactionStatus.blocked => ('অস্থায়ী স্থগিত', UpayColors.riskHigh),
     };

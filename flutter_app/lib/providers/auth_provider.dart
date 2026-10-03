@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/user.dart';
 import '../services/auth_service.dart';
 
@@ -56,9 +57,15 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateDeviceLocation({required String deviceId, required String location}) {
+  void updateDeviceLocation({
+    required String deviceId,
+    required String location,
+  }) {
     if (_user != null) {
-      _user = _user!.copyWith(currentDeviceId: deviceId, currentLocation: location);
+      _user = _user!.copyWith(
+        currentDeviceId: deviceId,
+        currentLocation: location,
+      );
       notifyListeners();
     }
   }

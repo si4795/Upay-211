@@ -21,3 +21,4 @@ class AppConstants {
   static const double dailyLimit = 100000.0;
   static const double standardFee = 5.0; // 5 Taka fee for send money
 }
+

@@ -760,3 +760,4 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     );
   }
 }
+

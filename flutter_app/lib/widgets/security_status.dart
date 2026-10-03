@@ -97,3 +97,4 @@ class SecurityStatusBar extends StatelessWidget {
     );
   }
 }
+

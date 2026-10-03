@@ -22,3 +22,4 @@ class UpayColors {
   static const Color riskHigh = Color(0xFFE74C3C);        // High Risk Block (Red)
   static const Color riskInfo = Color(0xFF3498DB);        // Informational Blue
 }
+

@@ -91,8 +91,10 @@ class RiskResult {
       riskScore: json['risk_score'] as int? ?? 10,
       riskLevel: parseLevel(json['risk_level'] as String? ?? 'LOW'),
       decision: parseDecision(json['decision'] as String? ?? 'ALLOW'),
-      customerMessage: json['customer_message'] as String? ?? 'Money Sent Successfully',
-      riskFactors: (json['risk_factors'] as List<dynamic>?)
+      customerMessage:
+          json['customer_message'] as String? ?? 'Money Sent Successfully',
+      riskFactors:
+          (json['risk_factors'] as List<dynamic>?)
               ?.map((e) => RiskFactor.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],

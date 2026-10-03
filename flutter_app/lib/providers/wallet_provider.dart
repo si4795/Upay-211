@@ -38,3 +38,4 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
