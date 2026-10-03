@@ -1,0 +1,10 @@
+class AppRoutes {
+  static const String splash = '/';
+  static const String login = '/login';
+  static const String home = '/home';
+  static const String sendMoney = '/send-money';
+  static const String transactions = '/transactions';
+  static const String security = '/security';
+  static const String profile = '/profile';
+  static const String admin = '/admin';
+}

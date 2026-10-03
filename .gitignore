@@ -25,13 +25,7 @@ develop-eggs/
 dist/
 downloads/
 eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+# Python build artifacts
 *.egg-info/
 .installed.cfg
 *.egg
@@ -44,3 +38,4 @@ wheels/
 # OS Generated
 .DS_Store
 Thumbs.db
+
