@@ -1,0 +1,46 @@
+# Flutter / Dart
+flutter_app/.dart_tool/
+flutter_app/.flutter-plugins
+flutter_app/.flutter-plugins-dependencies
+flutter_app/build/
+flutter_app/.packages
+flutter_app/.pub-cache/
+flutter_app/.pub/
+flutter_app/ios/Pods/
+flutter_app/.idea/
+flutter_app/*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# Environment and logs
+.env
+*.log
+
+# OS Generated
+.DS_Store
+Thumbs.db
