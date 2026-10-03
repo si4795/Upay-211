@@ -12,6 +12,8 @@ import 'screens/send_money/send_money_screen.dart';
 import 'screens/transactions/transaction_history_screen.dart';
 import 'screens/security/customer_security_center_screen.dart';
 import 'screens/profile/profile_screen.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
+import 'screens/admin/admin_login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,8 +44,11 @@ class UpayApp extends StatelessWidget {
           AppRoutes.transactions: (_) => const TransactionHistoryScreen(),
           AppRoutes.security: (_) => const CustomerSecurityCenterScreen(),
           AppRoutes.profile: (_) => const ProfileScreen(),
+          AppRoutes.admin: (_) => const AdminDashboardScreen(),
+          AppRoutes.adminLogin: (_) => const AdminLoginScreen(),
         },
       ),
     );
   }
 }
+

@@ -11,6 +11,7 @@ import '../send_money/send_money_screen.dart';
 import '../transactions/transaction_history_screen.dart';
 import '../security/customer_security_center_screen.dart';
 import '../profile/profile_screen.dart';
+import '../admin/admin_dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -39,6 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const CustomerSecurityCenterScreen()),
+                  );
+                },
+                onAdminTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
                   );
                 },
               ),

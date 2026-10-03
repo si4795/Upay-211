@@ -8,8 +8,9 @@ import '../providers/wallet_provider.dart';
 
 class BalanceCard extends StatelessWidget {
   final VoidCallback? onSecurityTap;
+  final VoidCallback? onAdminTap;
 
-  const BalanceCard({super.key, this.onSecurityTap});
+  const BalanceCard({super.key, this.onSecurityTap, this.onAdminTap});
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +72,19 @@ class BalanceCard extends StatelessWidget {
                   icon: const Icon(
                     Icons.security,
                     color: UpayColors.accentYellow,
-                    size: 26,
+                    size: 24,
                   ),
                   onPressed: onSecurityTap,
+                ),
+              if (onAdminTap != null)
+                IconButton(
+                  tooltip: 'Admin / Fraud Analyst Portal',
+                  icon: const Icon(
+                    Icons.admin_panel_settings_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  onPressed: onAdminTap,
                 ),
             ],
           ),
@@ -139,3 +150,4 @@ class BalanceCard extends StatelessWidget {
     );
   }
 }
+

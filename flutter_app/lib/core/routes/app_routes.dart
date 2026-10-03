@@ -7,4 +7,5 @@ class AppRoutes {
   static const String security = '/security';
   static const String profile = '/profile';
   static const String admin = '/admin';
+  static const String adminLogin = '/admin-login';
 }
