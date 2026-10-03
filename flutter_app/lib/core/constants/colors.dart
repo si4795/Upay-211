@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 class UpayColors {
   // Brand colors
-  static const Color primaryBlue = Color(0xFF0A2540);     // upay Navy Blue
-  static const Color primaryDark = Color(0xFF051626);     // Darker Navy
-  static const Color accentYellow = Color(0xFFFFB800);    // upay Signature Yellow
+  static const Color primaryBlue = Color(0xFF005CB9);     // Authentic upay Blue
+  static const Color primaryDark = Color(0xFF0A2540);     // upay Navy Blue
+  static const Color accentYellow = Color(0xFFFFC800);    // Authentic upay Vibrant Yellow
   static const Color accentGold = Color(0xFFE6A600);      // Slightly deeper yellow
   static const Color bgLight = Color(0xFFF4F6F9);         // App Background
   static const Color surfaceWhite = Color(0xFFFFFFFF);
+  static const Color pillYellow = Color(0xFFFFF8E1);      // Floating Pill Cream Background
   
   // Text Colors
   static const Color textDark = Color(0xFF0F172A);

@@ -5,6 +5,7 @@ import '../core/constants/colors.dart';
 import '../core/utils/formatters.dart';
 import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
+import 'upay_icons.dart';
 
 class BalanceCard extends StatelessWidget {
   final VoidCallback? onSecurityTap;
@@ -19,136 +20,120 @@ class BalanceCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: UpayColors.accentYellow, // Authentic Upay Signature Yellow
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-      child: Column(
+      color: UpayColors.accentYellow, // Authentic Upay Yellow (#FFC800)
+      padding: const EdgeInsets.fromLTRB(16, 8, 14, 12),
+      child: Row(
         children: [
-          Row(
-            children: [
-              // Upay Avatar
-              Container(
-                width: 44,
-                height: 44,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
+          // 1. Authentic Upay Circular Logo Avatar matching pic1.jpeg
+          InkWell(
+            onTap: onSecurityTap,
+            borderRadius: BorderRadius.circular(25),
+            child: const UpayLogoAvatar(size: 46),
+          ),
+          const SizedBox(width: 12),
+
+          // 2. User Name & Phone Number matching pic1.jpeg ("Homanur Bagum", "01303069631")
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  user?.name ?? 'Homanur Bagum',
+                  style: GoogleFonts.hindSiliguri(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                    height: 1.2,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                child: Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const Icon(Icons.person, color: UpayColors.primaryBlue, size: 28),
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: const BoxDecoration(
-                            color: UpayColors.riskLow,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
+                Text(
+                  user?.phone ?? '01303069631',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF334155),
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 3. "ব্যালেন্স" (Balance) Authentic Upay Blue Pill Button
+          InkWell(
+            onTap: () => walletProvider.toggleBalanceVisibility(),
+            borderRadius: BorderRadius.circular(22),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+              decoration: BoxDecoration(
+                color: const Color(0xFF005CB9), // Upay Royal Blue
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF005CB9).withOpacity(0.25),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(scale: animation, child: child),
+                ),
+                child: Text(
+                  walletProvider.isBalanceVisible
+                      ? Formatters.currency(walletProvider.balance)
+                      : 'ব্যালেন্স',
+                  key: ValueKey<bool>(walletProvider.isBalanceVisible),
+                  style: GoogleFonts.hindSiliguri(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+            ),
+          ),
 
-              // User Name & Phone (Synthetic Demo Data)
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user?.name ?? 'Demo User (Rahim)',
-                      style: GoogleFonts.hindSiliguri(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: UpayColors.primaryDark,
+          const SizedBox(width: 8),
+
+          // 4. Notification Bell Icon with Red Alert Dot matching pic1.jpeg
+          InkWell(
+            onTap: onDemoTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Stack(
+                children: [
+                  const Icon(
+                    Icons.notifications_rounded,
+                    color: Color(0xFF005CB9),
+                    size: 27,
+                  ),
+                  Positioned(
+                    right: 2,
+                    top: 1,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEF4444),
+                        shape: BoxShape.circle,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      user?.phone ?? '01712345678',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: UpayColors.primaryDark.withOpacity(0.75),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // "ব্যালেন্স" (Balance) Navy Button
-              InkWell(
-                onTap: () => walletProvider.toggleBalanceVisibility(),
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: UpayColors.primaryBlue,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: Text(
-                          walletProvider.isBalanceVisible
-                              ? Formatters.currency(walletProvider.balance)
-                              : 'ব্যালেন্স',
-                          key: ValueKey<bool>(walletProvider.isBalanceVisible),
-                          style: GoogleFonts.hindSiliguri(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        walletProvider.isBalanceVisible ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.white70,
-                        size: 15,
-                      ),
-                    ],
-                  ),
-                ),
+                ],
               ),
-
-              const SizedBox(width: 8),
-
-              // Notification Bell
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.25),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  tooltip: 'বিজ্ঞপ্তি',
-                  icon: const Icon(Icons.notifications_none_rounded, color: UpayColors.primaryDark, size: 22),
-                  onPressed: onDemoTap,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
     );
   }
 }
-

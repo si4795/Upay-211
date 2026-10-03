@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../../core/constants/colors.dart';
-import '../../providers/transaction_provider.dart';
 import '../../widgets/balance_card.dart';
-import '../../widgets/quick_action.dart';
-import '../../widgets/transaction_tile.dart';
-import '../../widgets/transaction_risk_detail_sheet.dart';
+import '../../widgets/upay_icons.dart';
 import '../../widgets/demo_scenario_sheet.dart';
 import '../send_money/send_money_screen.dart';
 import '../transactions/transaction_history_screen.dart';
@@ -28,26 +23,92 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: UpayColors.bgLight,
+      backgroundColor: const Color(0xFFF4F6F9),
       body: SafeArea(
-        child: IndexedStack(
-          index: _bottomNavIndex,
+        child: Stack(
           children: [
-            _buildHomeContent(),
-            const AccountScreen(),
-            const TransactionHistoryScreen(),
-            const MoreScreen(),
+            IndexedStack(
+              index: _bottomNavIndex,
+              children: [
+                _buildHomeContent(),
+                const AccountScreen(),
+                const TransactionHistoryScreen(),
+                const MoreScreen(),
+              ],
+            ),
+
+            // Dual Floating Pills ("উপায় কার্ড" and "উপায় অফার") matching pic1.jpeg & pic2.jpeg
+            if (_bottomNavIndex == 0)
+              Positioned(
+                left: 10,
+                right: 10,
+                bottom: 6,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: _buildFloatingPill(
+                          label: 'উপায় কার্ড',
+                          iconWidget: Container(
+                            width: 24,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF005CB9), Color(0xFF0089D0)],
+                              ),
+                              borderRadius: BorderRadius.circular(3),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black26, blurRadius: 2, offset: Offset(0, 1)),
+                              ],
+                            ),
+                            child: Center(
+                              child: Container(
+                                width: 5,
+                                height: 5,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFC800),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ),
+                          onTap: () => _showFeatureModal(context, 'উপায় কার্ড', 'আপনার প্রিপেইড ও ভার্চুয়াল উপায় কার্ড ব্যবস্থাপনা করুন।'),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: _buildFloatingPill(
+                          label: 'উপায় অফার',
+                          iconWidget: const Icon(
+                            Icons.card_giftcard_rounded,
+                            color: Color(0xFF005CB9),
+                            size: 20,
+                          ),
+                          onTap: () => DemoScenarioSheet.show(context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
-        margin: const EdgeInsets.only(top: 24),
+        margin: const EdgeInsets.only(top: 22),
+        width: 64,
+        height: 64,
         child: FloatingActionButton(
           elevation: 4,
           backgroundColor: Colors.white,
           shape: const CircleBorder(
-            side: BorderSide(color: UpayColors.primaryBlue, width: 3),
+            side: BorderSide(color: Color(0xFF005CB9), width: 3.5),
           ),
           onPressed: () {
             Navigator.push(
@@ -55,21 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (_) => const BanglaQrScreen()),
             );
           },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.qr_code_scanner_rounded, color: Colors.teal, size: 24),
-              Text(
-                'BANGLA QR',
-                style: GoogleFonts.inter(
-                  fontSize: 7,
-                  fontWeight: FontWeight.bold,
-                  color: UpayColors.primaryBlue,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
-          ),
+          child: const BanglaQrIcon(size: 44),
         ),
       ),
       bottomNavigationBar: BottomAppBar(
@@ -77,9 +124,9 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: const CircularNotchedRectangle(),
         notchMargin: 6,
         color: Colors.white,
-        elevation: 8,
+        elevation: 10,
         child: SizedBox(
-          height: 60,
+          height: 62,
           child: Row(
             children: [
               Expanded(
@@ -96,11 +143,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: 'অ্যাকাউন্ট',
                 ),
               ),
-              const SizedBox(width: 48), // Spacer for center BANGLA QR button
+              const SizedBox(width: 64), // Center notch spacer for BANGLA QR
               Expanded(
                 child: _buildBottomNavItem(
                   index: 2,
-                  icon: Icons.history_rounded,
+                  icon: Icons.access_time_filled_rounded,
                   label: 'হিস্টরি',
                 ),
               ),
@@ -127,28 +174,64 @@ class _HomeScreenState extends State<HomeScreen> {
     return InkWell(
       onTap: () => setState(() => _bottomNavIndex = index),
       borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 22,
-              color: isSelected ? UpayColors.primaryBlue : UpayColors.textLight,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 24,
+            color: isSelected ? const Color(0xFF005CB9) : const Color(0xFF94A3B8),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: GoogleFonts.hindSiliguri(
+              fontSize: 11.5,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+              color: isSelected ? const Color(0xFF005CB9) : const Color(0xFF64748B),
             ),
-            const SizedBox(height: 2),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFloatingPill({
+    required String label,
+    required Widget iconWidget,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF9E6), // Cream-Yellow Pill Background
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFFFE082), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             Text(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.hindSiliguri(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? UpayColors.primaryBlue : UpayColors.textLight,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF0F172A),
               ),
             ),
+            const SizedBox(width: 8),
+            iconWidget,
           ],
         ),
       ),
@@ -156,13 +239,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeContent() {
-    final recentTxns = context.watch<TransactionProvider>().recentTransactions;
-
     return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Authentic Upay Yellow Balance Header
+          // 1. Authentic Upay Signature Yellow Header matching pic1.jpeg
           BalanceCard(
             onSecurityTap: () {
               Navigator.push(
@@ -173,271 +255,244 @@ class _HomeScreenState extends State<HomeScreen> {
             onDemoTap: () => DemoScenarioSheet.show(context),
           ),
 
-          // 2. AI Fraud Shield Live Status Bar & Demo Launch
+          // 2. Primary Upay Services Grid (White Card Container) matching pic1.jpeg
           Container(
-            margin: const EdgeInsets.fromLTRB(14, 10, 14, 0),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            margin: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: UpayColors.borderSubtle),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 6,
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: UpayColors.riskLow.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.shield_rounded, color: UpayColors.riskLow, size: 18),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const TrustAndSafetyCenterScreen()),
-                      );
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AI ট্রাস্ট অ্যান্ড সেফটি শিল্ড সক্রিয় (৯৮%)',
-                          style: GoogleFonts.hindSiliguri(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.bold,
-                            color: UpayColors.textDark,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          'রিয়েল-টাইম আচরণ ও নেটওয়ার্ক নজরদারি চলছে',
-                          style: GoogleFonts.hindSiliguri(
-                            fontSize: 10.5,
-                            color: UpayColors.textMuted,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                // Row 1: সেন্ড মানি, মোবাইল রিচার্জ, ক্যাশ আউট, পে বিল
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildPrimaryService(
+                      label: 'সেন্ড মানি',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFE0F2FE),
+                        child: const Icon(Icons.arrow_outward_rounded, color: Color(0xFF0284C7), size: 24),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SendMoneyScreen()),
+                        );
+                      },
                     ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                TextButton(
-                  onPressed: () => DemoScenarioSheet.show(context),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    backgroundColor: UpayColors.accentYellow.withOpacity(0.25),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    'ডেমো সিনারিও',
-                    style: GoogleFonts.hindSiliguri(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.bold,
-                      color: UpayColors.primaryDark,
+                    _buildPrimaryService(
+                      label: 'মোবাইল রিচার্জ',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFE0F2FE),
+                        child: const Icon(Icons.phone_android_rounded, color: Color(0xFF0284C7), size: 24),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'মোবাইল রিচার্জ', 'যেকোনো মোবাইল অপারেটরে রিচার্জ করুন ক্যাশব্যাক সহ।'),
                     ),
-                  ),
+                    _buildPrimaryService(
+                      label: 'ক্যাশ আউট',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFE0F2FE),
+                        child: const Icon(Icons.outbox_rounded, color: Color(0xFF0284C7), size: 24),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'ক্যাশ আউট', 'নিকটস্থ উপায় এজেন্ট পয়েন্ট থেকে সর্বনিম্ন খরচে ক্যাশ আউট করুন।'),
+                    ),
+                    _buildPrimaryService(
+                      label: 'পে বিল',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFE0F2FE),
+                        child: const Icon(Icons.receipt_long_rounded, color: Color(0xFF0284C7), size: 24),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'পে বিল', 'বিদ্যুৎ, গ্যাস, পানি এবং ইন্টারনেট বিল পরিশোধ করুন কোনো চার্জ ছাড়াই।'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Row 2: অ্যাড মানি, সঞ্চয়, ফান্ড ট্রান্সফার, রিকোয়েস্ট মানি
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildPrimaryService(
+                      label: 'অ্যাড মানি',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFF3E8FF),
+                        child: const Icon(Icons.add_card_rounded, color: Color(0xFF7C3AED), size: 24),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'অ্যাড মানি', 'ব্যাংক বা ভিসা/মাস্টারকার্ড থেকে সহজে ফান্ড যোগ করুন।'),
+                    ),
+                    _buildPrimaryService(
+                      label: 'সঞ্চয়',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFFEF3C7),
+                        child: const Icon(Icons.savings_rounded, color: Color(0xFFD97706), size: 24),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'সঞ্চয়', 'উপায় ডিজিটাল সেভিংস দিয়ে নিশ্চিত মুনাফা অর্জন করুন।'),
+                    ),
+                    _buildPrimaryService(
+                      label: 'ফান্ড ট্রান্সফার',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFE0F2FE),
+                        child: const Icon(Icons.account_balance_rounded, color: Color(0xFF0284C7), size: 24),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'ফান্ড ট্রান্সফার', 'যেকোনো ব্যাংক অ্যাকাউন্টে তাৎক্ষণিক টাকা পাঠান।'),
+                    ),
+                    _buildPrimaryService(
+                      label: 'রিকোয়েস্ট মানি',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFFCE7F3),
+                        child: const Icon(Icons.mark_unread_chat_alt_rounded, color: Color(0xFFDB2777), size: 24),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'রিকোয়েস্ট মানি', 'প্রিয়জনদের কাছে সহজে টাকার রিকোয়েস্ট পাঠান।'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Row 3: মেক পেমেন্ট, রেফার ও আর্ন, এনপিএসবি
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildPrimaryService(
+                      label: 'মেক পেমেন্ট',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFE0F2FE),
+                        child: const Icon(Icons.qr_code_scanner_rounded, color: Color(0xFF0284C7), size: 24),
+                      ),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BanglaQrScreen())),
+                    ),
+                    _buildPrimaryService(
+                      label: 'রেফার ও আর্ন',
+                      icon: _buildSvgLikeIcon(
+                        bg: const Color(0xFFE0F2FE),
+                        child: const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF0284C7), size: 24),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'রেফার ও আর্ন', 'বন্ধুদের উপায় অ্যাপ রেফার করে জিতে নিন নগদ বোনাস!'),
+                    ),
+                    _buildPrimaryService(
+                      label: 'এনপিএসবি',
+                      icon: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFCBD5E1)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'NPSB',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFF005CB9),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                      onTap: () => _showFeatureModal(context, 'NPSB', 'National Payment Switch Bangladesh (NPSB) কানেক্টিভিটি।'),
+                    ),
+                    const SizedBox(width: 72), // Empty balance column to align with 4-item grid
+                  ],
                 ),
               ],
             ),
           ),
 
+          // 3. Promotional Banner Carousel (Cirkle Recharge Cashback) matching pic1.jpeg
+          _buildPromotionalBanner(),
+
           const SizedBox(height: 14),
 
-          // 3. Quick Actions Grid (Inspired by Upay MFS App)
+          // 4. "উপায় পেমেন্ট" Section matching pic1.jpeg & pic2.jpeg
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text(
+              'উপায় পেমেন্ট',
+              style: GoogleFonts.hindSiliguri(
+                fontSize: 16.5,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF005CB9),
+              ),
+            ),
+          ),
+
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 4,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 10,
-              mainAxisExtent: 90,
+              childAspectRatio: 0.86,
               children: [
-                QuickActionItem(
-                  icon: Icons.send_rounded,
-                  title: 'সেন্ড মানি',
-                  iconColor: Colors.blueAccent,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const SendMoneyScreen()),
-                    );
-                  },
-                ),
-                QuickActionItem(
-                  icon: Icons.phone_android_rounded,
-                  title: 'মোবাইল রিচার্জ',
-                  iconColor: Colors.teal,
-                  onTap: () => _showFeatureDialog('মোবাইল রিচার্জ'),
-                ),
-                QuickActionItem(
-                  icon: Icons.money_outlined,
-                  title: 'ক্যাশ আউট',
-                  iconColor: Colors.orange,
-                  onTap: () => _showFeatureDialog('ক্যাশ আউট'),
-                ),
-                QuickActionItem(
-                  icon: Icons.receipt_long_rounded,
-                  title: 'পে বিল',
-                  iconColor: Colors.deepPurpleAccent,
-                  onTap: () => _showFeatureDialog('পে বিল'),
-                ),
-                QuickActionItem(
-                  icon: Icons.add_card_rounded,
-                  title: 'অ্যাড মানি',
-                  iconColor: Colors.indigo,
-                  onTap: () => _showFeatureDialog('অ্যাড মানি'),
-                ),
-                QuickActionItem(
-                  icon: Icons.savings_outlined,
-                  title: 'সঞ্চয়',
-                  iconColor: Colors.amber.shade800,
-                  onTap: () => _showFeatureDialog('সঞ্চয়'),
-                ),
-                QuickActionItem(
-                  icon: Icons.sync_alt_rounded,
-                  title: 'ফান্ড ট্রান্সফার',
-                  iconColor: Colors.cyan.shade700,
-                  onTap: () => _showFeatureDialog('ফান্ড ট্রান্সফার'),
-                ),
-                QuickActionItem(
-                  icon: Icons.request_page_outlined,
-                  title: 'রিকোয়েস্ট মানি',
-                  iconColor: Colors.pinkAccent,
-                  onTap: () => _showFeatureDialog('রিকোয়েস্ট মানি'),
-                ),
+                _buildPaymentItem('ট্রাফিক ফাইন', Icons.traffic_rounded, const Color(0xFF16A34A)),
+                _buildPaymentItem('টোল পেমেন্ট', Icons.garage_rounded, const Color(0xFF0284C7)),
+                _buildPaymentItem('সরকারি পেমেন্ট', Icons.account_balance_rounded, const Color(0xFFDC2626)),
+                _buildPaymentItem('এডুকেশন', Icons.school_rounded, const Color(0xFF9333EA)),
+                _buildPaymentItem('এন জি ও', Icons.volunteer_activism_rounded, const Color(0xFF0284C7)),
+                _buildPaymentItem('বীমা', Icons.health_and_safety_rounded, const Color(0xFF0D9488)),
+                _buildPaymentItem('ডোনেশন', Icons.card_giftcard_rounded, const Color(0xFF2563EB)),
+                _buildPaymentItem('যাকাত পেমেন্ট', Icons.monetization_on_rounded, const Color(0xFF16A34A)),
+                _buildPaymentItem('টিকেট', Icons.confirmation_number_rounded, const Color(0xFF7C3AED)),
+                _buildPaymentItem('জিপি ফ্লেক্সিপ্ল্যান', Icons.apps_rounded, const Color(0xFF0284C7)),
+                _buildPaymentItem('হোটেল', Icons.apartment_rounded, const Color(0xFFEA580C)),
+                _buildPaymentItem('আবেদন ফি', Icons.description_rounded, const Color(0xFF0284C7)),
+                _buildPaymentItem('Othoba', Icons.shopping_bag_rounded, const Color(0xFF2563EB)),
+                _buildPaymentItem('মেট্রোরেল', Icons.train_rounded, const Color(0xFF16A34A)),
               ],
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
-          // 4. Promotional Banner (Upay Offers Carousel Simulation)
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0D325E), Color(0xFF1E5B99)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          // 5. "অন্যান্য সার্ভিস" Section matching pic2.jpeg
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text(
+              'অন্যান্য সার্ভিস',
+              style: GoogleFonts.hindSiliguri(
+                fontSize: 16.5,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF005CB9),
               ),
+            ),
+          ),
+
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Row(
+            child: GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 4,
+              childAspectRatio: 0.86,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: UpayColors.accentYellow,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'ট্র্যাক ০১ প্রেজেন্টেশন',
-                          style: GoogleFonts.hindSiliguri(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: UpayColors.primaryDark,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'upay ট্রাস্ট অ্যান্ড রিস্ক ইন্টেলিজেন্স',
-                        style: GoogleFonts.hindSiliguri(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        'প্রতিটি লেনদেনে মেশিন লার্নিং ও গ্রাফ ফ্রড গার্ড',
-                        style: GoogleFonts.hindSiliguri(
-                          fontSize: 11,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.security_update_good_rounded, color: UpayColors.accentYellow, size: 40),
+                _buildPaymentItem('পেওনিয়ার', Icons.change_circle_rounded, const Color(0xFFEA580C)),
+                _buildPaymentItem('উপায় চাকা', Icons.pie_chart_rounded, const Color(0xFFEAB308)),
+                _buildPaymentItem('মিউজিক', Icons.music_note_rounded, const Color(0xFF0284C7)),
+                _buildPaymentItem('ই-লার্নিং', Icons.menu_book_rounded, const Color(0xFF2563EB)),
+                _buildPaymentItem('গেমস', Icons.sports_esports_rounded, const Color(0xFF7C3AED)),
               ],
             ),
           ),
-
-          const SizedBox(height: 20),
-
-          // 5. Recent Transactions Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'সাম্প্রতিক লেনদেন (Recent)',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.hindSiliguri(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: UpayColors.textDark,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => setState(() => _bottomNavIndex = 2),
-                  child: Text(
-                    'সব দেখুন',
-                    style: GoogleFonts.hindSiliguri(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: UpayColors.primaryBlue,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Recent Transactions List (Customer View with Risk Indicators)
-          if (recentTxns.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: Text(
-                  'কোনো সাম্প্রতিক লেনদেন নেই',
-                  style: GoogleFonts.hindSiliguri(color: UpayColors.textMuted),
-                ),
-              ),
-            )
-          else
-            ...recentTxns.map((t) {
-              return TransactionTile(
-                transaction: t,
-                onTap: () => TransactionRiskDetailSheet.show(context, t),
-              );
-            }),
 
           const SizedBox(height: 30),
         ],
@@ -445,23 +500,277 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showFeatureDialog(String feature) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(feature, style: GoogleFonts.hindSiliguri(fontWeight: FontWeight.bold)),
-        content: Text(
-          '$feature সেবাটি এই ট্র্যাক ০১ সিমুলেশনে ডেমো হিসাবে অন্তর্ভুক্ত। প্রধান ফোকাস সেন্ড মানি এবং ট্রাস্ট অ্যান্ড রিস্ক ইন্টেলিজেন্স ইঞ্জিনের উপর।',
-          style: GoogleFonts.hindSiliguri(),
+  Widget _buildPrimaryService({
+    required String label,
+    required Widget icon,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 76,
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            icon,
+            const SizedBox(height: 6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.hindSiliguri(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF0F172A),
+                height: 1.15,
+              ),
+            ),
+          ],
         ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('ঠিক আছে', style: GoogleFonts.hindSiliguri()),
+      ),
+    );
+  }
+
+  Widget _buildSvgLikeIcon({required Color bg, required Widget child}) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(child: child),
+    );
+  }
+
+  Widget _buildPaymentItem(String label, IconData icon, Color color) {
+    return InkWell(
+      onTap: () => _showFeatureModal(context, label, '$label পেমেন্ট প্রক্রিয়াধীন। নিরাপদে বিল পরিশোধ করুন।'),
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.hindSiliguri(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF1E293B),
+              height: 1.1,
+            ),
           ),
         ],
       ),
     );
   }
-}
 
+  Widget _buildPromotionalBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF003875), Color(0xFF005CB9)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF005CB9).withOpacity(0.2),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'cirkle',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFFEF4444),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEF4444),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'upay থেকে cirkle রিচার্জে আনলিমিটেড ক্যাশব্যাক',
+                        style: GoogleFonts.hindSiliguri(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          _buildOfferTag('৳১০ ক্যাশব্যাক (২২৮৳ ৩০ জিবি)'),
+                          _buildOfferTag('৳৯ ক্যাশব্যাক (২৪৯৳ ২৫ জিবি)'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () => DemoScenarioSheet.show(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFC800),
+                    foregroundColor: const Color(0xFF003875),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    minimumSize: Size.zero,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'ক্লিক করুন',
+                    style: GoogleFonts.hindSiliguri(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          // 3 indicator dots
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildIndicatorDot(active: true),
+              const SizedBox(width: 5),
+              _buildIndicatorDot(active: false),
+              const SizedBox(width: 5),
+              _buildIndicatorDot(active: false),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOfferTag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.18),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.hindSiliguri(
+          fontSize: 9.5,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIndicatorDot({required bool active}) {
+    return Container(
+      width: active ? 14 : 6,
+      height: 6,
+      decoration: BoxDecoration(
+        color: active ? const Color(0xFF005CB9) : const Color(0xFFCBD5E1),
+        borderRadius: BorderRadius.circular(3),
+      ),
+    );
+  }
+
+  void _showFeatureModal(BuildContext context, String title, String description) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Container(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const UpayLogoAvatar(size: 36),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: GoogleFonts.hindSiliguri(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF005CB9),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              description,
+              style: GoogleFonts.hindSiliguri(
+                fontSize: 14,
+                color: const Color(0xFF475569),
+              ),
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF005CB9),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                ),
+                child: Text(
+                  'ঠিক আছে',
+                  style: GoogleFonts.hindSiliguri(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

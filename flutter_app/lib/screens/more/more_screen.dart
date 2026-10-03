@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../../core/constants/colors.dart';
-import '../../providers/auth_provider.dart';
+import '../../core/routes/app_routes.dart';
 import '../security/trust_and_safety_center_screen.dart';
+import '../../widgets/demo_scenario_sheet.dart';
 import '../login/login_screen.dart';
 
 class MoreScreen extends StatelessWidget {
@@ -12,178 +11,192 @@ class MoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: UpayColors.bgLight,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'আরো',
-          style: GoogleFonts.hindSiliguri(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: UpayColors.primaryBlue,
+      backgroundColor: const Color(0xFFF3F4F6),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: Container(
+          color: Colors.white,
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+          child: SafeArea(
+            bottom: false,
+            child: Text(
+              'আরো',
+              style: GoogleFonts.hindSiliguri(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF1E3A5F),
+              ),
+            ),
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.only(bottom: 90),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Prominent Trust & Safety Center Banner
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const TrustAndSafetyCenterScreen()),
-                );
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [UpayColors.primaryBlue, Color(0xFF133E68)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: UpayColors.primaryBlue.withOpacity(0.15),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: UpayColors.accentYellow.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.shield_rounded, color: UpayColors.accentYellow, size: 26),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'ট্রাস্ট অ্যান্ড সেফটি সেন্টার',
-                                style: GoogleFonts.hindSiliguri(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: UpayColors.riskLow,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'AI Shield',
-                                  style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            'অ্যাকাউন্ট টেকওভার, আচরণগত অ্যানোমালি ও স্ক্যাম ইন্টেলিজেন্স',
-                            style: GoogleFonts.hindSiliguri(
-                              fontSize: 12,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right, color: Colors.white70),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // সেকশন ১: সেটিংস (Settings)
+            // 1. সেটিংস (Settings) matching pic3.jpeg
             _buildSectionHeader('সেটিংস'),
-            _buildSettingsItem(icon: Icons.lock_outline, title: 'পিন পরিবর্তন', onTap: () {}),
-            _buildSettingsItem(icon: Icons.language, title: 'ভাষা পরিবর্তন', onTap: () {}),
-            _buildSettingsItem(icon: Icons.toggle_on_outlined, title: 'অনুমতি পরিবর্তন', onTap: () {}),
+            _buildCardGroup([
+              _buildMenuItem(
+                iconColor: const Color(0xFFFFB800),
+                icon: Icons.lock_outline_rounded,
+                title: 'পিন পরিবর্তন',
+                onTap: () => _showActionSnackBar(context, 'পিন পরিবর্তন সুবিধাটি শীঘ্রই আসছে'),
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFF22C55E),
+                icon: Icons.chat_bubble_outline_rounded,
+                title: 'ভাষা পরিবর্তন',
+                onTap: () => _showActionSnackBar(context, 'ভাষা: বাংলা (সক্রিয়)'),
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFF2563EB),
+                icon: Icons.toggle_on_outlined,
+                title: 'অনুমতি পরিবর্তন',
+                onTap: () => _showActionSnackBar(context, 'সব প্রয়োজনীয় অনুমতি সক্রিয় রয়েছে'),
+              ),
+            ]),
 
-            const SizedBox(height: 16),
+            // 2. উপায় সাপোর্ট (Upay Support) matching pic3.jpeg
+            _buildSectionHeader('উপায় সাপোর্ট'),
+            _buildCardGroup([
+              _buildMenuItem(
+                iconColor: const Color(0xFFEF4444),
+                icon: Icons.support_agent_rounded,
+                title: '২৪x৭ সেবা',
+                onTap: () => _showSupportModal(context),
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFFF97316),
+                icon: Icons.question_answer_outlined,
+                title: 'বহুল জিজ্ঞাসিত প্রশ্ন',
+                onTap: () => _showActionSnackBar(context, '১৬২৬৮ নম্বরে কল করুন অথবা FAQ দেখুন'),
+              ),
+            ]),
 
-            // সেকশন ২: উপায় সাপোর্ট (Upay Support)
-            _buildSectionHeader('উপায় সাপোর্ট'),
-            _buildSettingsItem(
-              icon: Icons.support_agent_rounded,
-              title: '২৪x৭ সেবা (১৬২৬৮)',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('১৬২৬৮ হেল্পলাইনে কল সংযুক্ত করা হচ্ছে...')),
-                );
-              },
-            ),
-            _buildSettingsItem(icon: Icons.help_outline_rounded, title: 'বহুল জিজ্ঞাসিত প্রশ্ন (FAQ)', onTap: () {}),
-
-            const SizedBox(height: 16),
-
-            // সেকশন ৩: অ্যাকাউন্ট সার্ভিস (Account Services)
+            // 3. অ্যাকাউন্ট সার্ভিস (Account Services) matching pic3.jpeg
             _buildSectionHeader('অ্যাকাউন্ট সার্ভিস'),
-            _buildSettingsItem(icon: Icons.sim_card_outlined, title: 'MNP তথ্য আপডেট', onTap: () {}),
-            _buildSettingsItem(icon: Icons.stars_rounded, title: 'উপায় চাকা', onTap: () {}),
-            _buildSettingsItem(icon: Icons.fingerprint, title: 'ফিঙ্গারপ্রিন্ট/ফেস আইডি সচল করুন', onTap: () {}),
-            _buildSettingsItem(icon: Icons.share_outlined, title: 'রেফার উপায়', onTap: () {}),
+            _buildCardGroup([
+              _buildMenuItem(
+                iconColor: const Color(0xFF1D4ED8),
+                icon: Icons.sim_card_outlined,
+                title: 'MNP তথ্য আপডেট',
+                onTap: () => _showActionSnackBar(context, 'আপনার সিমের MNP তথ্য যাচাই করা হয়েছে'),
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFFF59E0B),
+                icon: Icons.adjust_rounded,
+                title: 'উপায় চাকা',
+                onTap: () => _showActionSnackBar(context, 'উপায় চাকা ঘুরিয়ে আকর্ষণীয় ক্যাশব্যাক জিতুন!'),
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFFEAB308),
+                icon: Icons.sentiment_satisfied_alt_rounded,
+                title: 'ফিঙ্গারপ্রিন্ট/ফেস আইডি সচল করুন',
+                onTap: () => _showActionSnackBar(context, 'বায়োমেট্রিক সিকিউরিটি সচল রয়েছে'),
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFF2563EB),
+                icon: Icons.group_add_outlined,
+                title: 'রেফার উপায়',
+                onTap: () => _showActionSnackBar(context, 'বন্ধুদের রেফার করে জিতে নিন ৫০ টাকা বোনাস!'),
+              ),
+            ]),
 
-            const SizedBox(height: 16),
-
-            // সেকশন ৪: নীতিমালা (Policy)
+            // 4. নীতিমালা (Policies) matching pic3.jpeg
             _buildSectionHeader('নীতিমালা'),
-            _buildSettingsItem(icon: Icons.description_outlined, title: 'শর্তাবলী', onTap: () {}),
-            _buildSettingsItem(icon: Icons.policy_outlined, title: 'গোপনীয়তা নীতিমালা', onTap: () {}),
-            _buildSettingsItem(icon: Icons.info_outline, title: 'অ্যাপ-এর তথ্য (Track 01 Prototype)', onTap: () {}),
+            _buildCardGroup([
+              _buildMenuItem(
+                iconColor: const Color(0xFFFBBF24),
+                icon: Icons.description_outlined,
+                title: 'শর্তাবলী',
+                onTap: () => _showActionSnackBar(context, 'উপায় ব্যবহারের সাধারণ শর্তাবলী ও নীতিমালা'),
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFF10B981),
+                icon: Icons.verified_user_outlined,
+                title: 'প্রাইভেসি পলিসি',
+                onTap: () => _showActionSnackBar(context, 'আপনার তথ্য সম্পূর্ণ সুরক্ষিত ও এনক্রিপ্টেড'),
+              ),
+            ]),
+
+            // 5. Track 01 — Trust & Risk Intelligence Specialized Entry
+            _buildSectionHeader('ট্রাস্ট ও সিকিউরিটি ইন্টেলিজেন্স (Track 01)'),
+            _buildCardGroup([
+              _buildMenuItem(
+                iconColor: const Color(0xFF005CB9),
+                icon: Icons.shield_rounded,
+                title: 'ট্রাস্ট অ্যান্ড সেফটি সেন্টার',
+                subtitle: 'AI রিয়েল-টাইম প্রোটেকশন, ট্রাস্টেড ডিভাইস ও লগইন স্টেট',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TrustAndSafetyCenterScreen()),
+                  );
+                },
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFF8B5CF6),
+                icon: Icons.play_circle_outline_rounded,
+                title: 'হ্যাকথন ডেমো সিনারিও',
+                subtitle: 'Normal, Suspicious, Account Takeover ও Scam NLP টেস্ট করুন',
+                onTap: () => DemoScenarioSheet.show(context),
+              ),
+              const Divider(height: 1, indent: 64, endIndent: 16, color: Color(0xFFF1F5F9)),
+              _buildMenuItem(
+                iconColor: const Color(0xFF0A2540),
+                icon: Icons.admin_panel_settings_rounded,
+                title: 'অ্যাডমিন / ফ্রড অ্যানালিস্ট কনসোল',
+                subtitle: 'রিয়েল-টাইম রিক্স ফিড, SHAP চার্ট, ATO ও মানি-মিউল গ্রাফ',
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.adminLogin);
+                },
+              ),
+            ]),
 
             const SizedBox(height: 16),
 
-            // লগ আউট (Logout)
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: Material(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: UpayColors.borderSubtle),
-                ),
-                child: ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.redAccent),
-                  title: Text(
-                    'লগ আউট',
+            // Logout Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
+                  label: Text(
+                    'লগআউট করুন',
                     style: GoogleFonts.hindSiliguri(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.redAccent,
+                      color: const Color(0xFFEF4444),
                     ),
                   ),
-                  onTap: () {
-                    context.read<AuthProvider>().logout();
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      (route) => false,
-                    );
-                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: const BorderSide(color: Color(0xFFFCA5A5)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: Colors.white,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -192,47 +205,139 @@ class MoreScreen extends StatelessWidget {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Text(
         title,
         style: GoogleFonts.hindSiliguri(
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-          color: UpayColors.textMuted,
+          fontSize: 13.5,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF64748B),
+          letterSpacing: 0.2,
         ),
       ),
     );
   }
 
-  Widget _buildSettingsItem({
+  Widget _buildCardGroup(List<Widget> children) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.015),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required Color iconColor,
     required IconData icon,
     required String title,
+    String? subtitle,
     required VoidCallback onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      child: Material(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: UpayColors.borderSubtle),
-        ),
-        child: ListTile(
-          onTap: onTap,
-          dense: true,
-          leading: Icon(icon, color: UpayColors.primaryBlue, size: 20),
-          title: Text(
-            title,
-            style: GoogleFonts.hindSiliguri(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: UpayColors.textDark,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Icon(icon, color: Colors.white, size: 20),
+              ),
             ),
-          ),
-          trailing: const Icon(Icons.chevron_right, size: 18, color: UpayColors.textLight),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.hindSiliguri(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.hindSiliguri(
+                        fontSize: 11.5,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF94A3B8),
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showActionSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.hindSiliguri()),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _showSupportModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'উপায় হেল্পলাইন ২৪x৭',
+              style: GoogleFonts.hindSiliguri(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'যেকোনো জরুরি প্রয়োজনে ১৬২৬৮ নম্বরে কল করুন অথবা সাপোর্ট টিকেট ওপেন করুন।',
+              style: GoogleFonts.hindSiliguri(color: const Color(0xFF64748B)),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.phone_rounded, color: Color(0xFF005CB9)),
+              title: const Text('১৬২৬৮ (হটলাইন)'),
+              subtitle: const Text('টোল ফ্রি ২৪/৭ গ্রাহক সেবা'),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
