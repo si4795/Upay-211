@@ -3,7 +3,7 @@ import 'api_service.dart';
 
 class RiskService {
   final ApiService _apiService;
-  bool useLocalSimulation = true; // In Phase 1, works locally without backend!
+  bool useLocalSimulation = false; // Connect to FastAPI backend with offline fallback!
 
   RiskService({ApiService? apiService}) : _apiService = apiService ?? ApiService();
 
@@ -88,3 +88,4 @@ class RiskService {
     );
   }
 }
+
