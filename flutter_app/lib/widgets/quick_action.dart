@@ -22,42 +22,52 @@ class QuickActionItem extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(color: UpayColors.borderSubtle.withOpacity(0.6)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.02),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
+                blurRadius: 4,
+                offset: const Offset(0, 1.5),
               ),
             ],
           ),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: iconColor.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: iconColor, size: 24),
+                child: Center(
+                  child: Icon(icon, color: iconColor, size: 20),
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.hindSiliguri(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: UpayColors.textDark,
+              const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    style: GoogleFonts.hindSiliguri(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: UpayColors.textDark,
+                      height: 1.1,
+                    ),
+                  ),
                 ),
               ),
             ],

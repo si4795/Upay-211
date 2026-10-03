@@ -91,38 +91,36 @@ class _SplashScreenState extends State<SplashScreen> {
                 FadeInUp(
                   duration: const Duration(milliseconds: 800),
                   delay: const Duration(milliseconds: 300),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: UpayColors.accentYellow.withOpacity(0.4),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.security_rounded,
-                              color: UpayColors.accentYellow,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Track 01 — Trust & Risk Intelligence',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: UpayColors.accentYellow.withOpacity(0.4),
                         ),
                       ),
-                    ],
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.security_rounded,
+                            color: UpayColors.accentYellow,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Track 01 — Trust & Risk Intelligence',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),

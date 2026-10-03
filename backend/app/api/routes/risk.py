@@ -18,5 +18,8 @@ def predict_transaction_risk(payload: RiskPredictRequest, request: Request):
         anomaly_score=result["anomaly_score"],
         model_probabilities={
             "supervised_fraud_prob": result["supervised_probability"]
-        }
+        },
+        what_happened=result.get("what_happened"),
+        why_risky=result.get("why_risky"),
+        what_next=result.get("what_next"),
     )

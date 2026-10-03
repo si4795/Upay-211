@@ -28,6 +28,9 @@ class RiskPredictResponse(BaseModel):
     risk_factors: List[RiskFactorItem] = Field(default_factory=list)
     anomaly_score: Optional[float] = None
     model_probabilities: Optional[Dict[str, float]] = None
+    what_happened: Optional[str] = None
+    why_risky: Optional[str] = None
+    what_next: Optional[str] = None
 
 class AdminActionRequest(BaseModel):
     transaction_id: str

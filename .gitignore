@@ -35,7 +35,8 @@ eggs/
 .env
 *.log
 
-# OS Generated
+# OS & IDE Generated
 .DS_Store
 Thumbs.db
+.vscode/
 

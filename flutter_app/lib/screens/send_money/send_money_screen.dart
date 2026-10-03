@@ -9,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/wallet_provider.dart';
 import '../../providers/transaction_provider.dart';
 import '../../widgets/loading_overlay.dart';
+import '../../widgets/transaction_risk_detail_sheet.dart';
 
 class SendMoneyScreen extends StatefulWidget {
   final double? initialAmount;
@@ -29,7 +30,8 @@ class SendMoneyScreen extends StatefulWidget {
 }
 
 class _SendMoneyScreenState extends State<SendMoneyScreen> {
-  int _currentStep = 1; // 1: Receiver, 2: Amount, 3: PIN, 4: Review, 6: Result
+  int _currentStep = 1; // 1: Receiver, 2: Amount, 3: PIN, 4: Review, 5: OTP Challenge, 6: Result
+  final TextEditingController _otpController = TextEditingController(text: '582910');
 
   final TextEditingController _receiverPhoneController = TextEditingController();
   final TextEditingController _receiverNameController = TextEditingController();
@@ -150,12 +152,33 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     );
 
     if (result != null) {
-      if (result.status == TransactionStatus.success) {
-        wallet.deductAmount(_total);
+      if (result.status == TransactionStatus.verifyRequired) {
+        setState(() {
+          _resultTxn = result;
+          _currentStep = 5; // Step-up OTP verification challenge
+        });
+      } else {
+        if (result.status == TransactionStatus.success) {
+          wallet.deductAmount(_total);
+        }
+        setState(() {
+          _resultTxn = result;
+          _currentStep = 6; // Outcome
+        });
       }
+    }
+  }
+
+  void _completeOtpChallenge() {
+    final wallet = context.read<WalletProvider>();
+    wallet.deductAmount(_total);
+    if (_resultTxn != null) {
       setState(() {
-        _resultTxn = result;
-        _currentStep = 6; // Jump directly to outcome
+        _resultTxn = _resultTxn!.copyWith(
+          status: TransactionStatus.success,
+          customerMessage: 'অতিরিক্ত যাচাই সম্পন্ন হয়েছে। টাকা পাঠানো সফল হয়েছে।',
+        );
+        _currentStep = 6;
       });
     }
   }
@@ -193,6 +216,7 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                 2 => _buildStep2Amount(),
                 3 => _buildStep3Pin(),
                 4 => _buildStep4Review(),
+                5 => _buildStep5OtpChallenge(),
                 _ => _buildStep6Result(),
               },
             ),
@@ -202,6 +226,81 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
           const SecureLoadingOverlay(
             message: 'Processing your transaction securely...',
           ),
+      ],
+    );
+  }
+
+  Widget _buildStep5OtpChallenge() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: UpayColors.riskMedium.withOpacity(0.15), shape: BoxShape.circle),
+              child: const Icon(Icons.security_update_good, color: UpayColors.riskMedium, size: 28),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'অতিরিক্ত নিরাপত্তা যাচাই (Verification)',
+                    style: GoogleFonts.hindSiliguri(fontSize: 18, fontWeight: FontWeight.bold, color: UpayColors.textDark),
+                  ),
+                  Text(
+                    'নতুন প্রাপক বা অস্বাভাবিক লেনদেনের জন্য অতিরিক্ত ওটিপি প্রয়োজন',
+                    style: GoogleFonts.hindSiliguri(fontSize: 12, color: UpayColors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: UpayColors.borderSubtle),
+          ),
+          child: Column(
+            children: [
+              Text(
+                'আপনার নিবন্ধিত নম্বরে একটি ৬-সংখ্যার ওটিপি কোড পাঠানো হয়েছে:',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.hindSiliguri(fontSize: 13, color: UpayColors.textDark),
+              ),
+              const SizedBox(height: 16),
+              Pinput(
+                length: 6,
+                controller: _otpController,
+                onCompleted: (_) => _completeOtpChallenge(),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'ডেমো ওটিপি কোড: 582910',
+                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: UpayColors.primaryBlue),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: _completeOtpChallenge,
+            style: ElevatedButton.styleFrom(backgroundColor: UpayColors.primaryBlue),
+            child: Text(
+              'ওটিপি যাচাই ও সম্পন্ন করুন',
+              style: GoogleFonts.hindSiliguri(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -739,7 +838,31 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
             ),
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+
+          // Direct link to Explainable Risk Intelligence & AI Security Assistant
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton.icon(
+              onPressed: () => TransactionRiskDetailSheet.show(context, txn),
+              icon: const Icon(Icons.shield_outlined, size: 20, color: UpayColors.primaryBlue),
+              label: Text(
+                'নিরাপত্তা বিশ্লেষণ ও AI ব্যাখ্যা দেখুন',
+                style: GoogleFonts.hindSiliguri(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.bold,
+                  color: UpayColors.primaryBlue,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: UpayColors.primaryBlue, width: 1.4),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
 
           SizedBox(
             width: double.infinity,

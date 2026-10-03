@@ -31,11 +31,14 @@ class RiskFactor {
 class RiskResult {
   final String transactionId;
   final int riskScore; // 0-100
-  final RiskLevel riskLevel; // low, medium, high
+  final RiskLevel riskLevel; // low (0-39), medium (40-69), high (70-100)
   final RiskDecision decision; // allow, verify, hold, block
   final String customerMessage;
   final List<RiskFactor> riskFactors;
   final double? anomalyScore;
+  final String? whatHappened;
+  final String? whyRisky;
+  final String? whatNext;
   final Map<String, dynamic>? rawDetails;
 
   const RiskResult({
@@ -46,8 +49,19 @@ class RiskResult {
     required this.customerMessage,
     this.riskFactors = const [],
     this.anomalyScore,
+    this.whatHappened,
+    this.whyRisky,
+    this.whatNext,
     this.rawDetails,
   });
+
+  static RiskLevel calculateLevel(int score) {
+    if (score >= 70) return RiskLevel.high;
+    if (score >= 40) return RiskLevel.medium;
+    return RiskLevel.low;
+  }
+
+  static RiskLevel levelFromScore(int score) => calculateLevel(score);
 
   static RiskLevel parseLevel(String level) {
     switch (level.toUpperCase()) {
@@ -83,13 +97,20 @@ class RiskResult {
     'customer_message': customerMessage,
     'risk_factors': riskFactors.map((e) => e.toJson()).toList(),
     'anomaly_score': anomalyScore,
+    if (whatHappened != null) 'what_happened': whatHappened,
+    if (whyRisky != null) 'why_risky': whyRisky,
+    if (whatNext != null) 'what_next': whatNext,
   };
 
   factory RiskResult.fromJson(Map<String, dynamic> json) {
+    final score = json['risk_score'] as int? ?? 10;
+    final levelStr = json['risk_level'] as String?;
+    final level = levelStr != null ? parseLevel(levelStr) : calculateLevel(score);
+
     return RiskResult(
       transactionId: json['transaction_id'] as String? ?? '',
-      riskScore: json['risk_score'] as int? ?? 10,
-      riskLevel: parseLevel(json['risk_level'] as String? ?? 'LOW'),
+      riskScore: score,
+      riskLevel: level,
       decision: parseDecision(json['decision'] as String? ?? 'ALLOW'),
       customerMessage:
           json['customer_message'] as String? ?? 'Money Sent Successfully',
@@ -99,6 +120,12 @@ class RiskResult {
               .toList() ??
           [],
       anomalyScore: (json['anomaly_score'] as num?)?.toDouble(),
+      whatHappened: json['what_happened'] as String? ??
+          (json['ai_explanation'] is Map ? (json['ai_explanation']['what_happened'] as String?) : null),
+      whyRisky: json['why_risky'] as String? ??
+          (json['ai_explanation'] is Map ? (json['ai_explanation']['why_risky'] as String?) : null),
+      whatNext: json['what_next'] as String? ??
+          (json['ai_explanation'] is Map ? (json['ai_explanation']['what_to_do'] as String?) : null),
       rawDetails: json,
     );
   }

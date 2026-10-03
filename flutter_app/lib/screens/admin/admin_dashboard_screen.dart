@@ -1,8 +1,10 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+
 import '../../core/constants/colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/admin_intelligence.dart';
@@ -25,7 +27,8 @@ class AdminDashboardScreen extends StatefulWidget {
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> with SingleTickerProviderStateMixin {
+class _AdminDashboardScreenState extends State<AdminDashboardScreen>
+    with SingleTickerProviderStateMixin {
   final AdminService _adminService = AdminService();
   late TabController _tabController;
 
@@ -54,12 +57,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
 
   void _connectWebSocket() {
     try {
-      final wsUri = Uri.parse('${_adminService.apiService.wsUrl}/api/v1/ws/risk-events');
+      final wsUri = Uri.parse(
+        '${_adminService.apiService.wsUrl}/api/v1/ws/risk-events',
+      );
       _wsChannel = WebSocketChannel.connect(wsUri);
       _wsChannel?.stream.listen((message) {
         try {
           final data = jsonDecode(message);
-          if (data is Map<String, dynamic> && data.containsKey('transaction_id')) {
+          if (data is Map<String, dynamic> &&
+              data.containsKey('transaction_id')) {
             _handleIncomingRiskEvent(data);
           }
         } catch (_) {}
@@ -69,7 +75,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
 
   void _handleIncomingRiskEvent(Map<String, dynamic> event) {
     if (!mounted) return;
-    final txnId = event['transaction_id'] as String? ?? 'TXN-${DateTime.now().millisecondsSinceEpoch}';
+    final txnId =
+        event['transaction_id'] as String? ??
+        'TXN-${DateTime.now().millisecondsSinceEpoch}';
     final amount = (event['amount'] as num?)?.toDouble() ?? 500.0;
     final score = (event['risk_score'] as num?)?.toInt() ?? 20;
     final isHigh = event['is_high_risk'] == true || score >= 71;
@@ -92,7 +100,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       total: amount + 5.0,
       timestamp: DateTime.now(),
       type: TransactionType.sendMoney,
-      status: isHigh ? TransactionStatus.hold : (score >= 31 ? TransactionStatus.verifyRequired : TransactionStatus.success),
+      status: isHigh
+          ? TransactionStatus.hold
+          : (score >= 31
+                ? TransactionStatus.verifyRequired
+                : TransactionStatus.success),
       deviceId: event['device_id'] as String? ?? 'DEVICE001',
       location: event['location'] as String? ?? 'Dhaka',
       riskResult: RiskResult(
@@ -100,9 +112,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         riskScore: score,
         riskLevel: riskLevel,
         decision: decision,
-        customerMessage: isHigh ? 'Transaction temporarily unavailable.' : 'Processed',
+        customerMessage: isHigh
+            ? 'Transaction temporarily unavailable.'
+            : 'Processed',
         riskFactors: ((event['indicators'] as List<dynamic>?) ?? [])
-            .map((i) => RiskFactor(feature: 'signal', impact: 0.25, message: i.toString()))
+            .map(
+              (i) => RiskFactor(
+                feature: 'signal',
+                impact: 0.25,
+                message: i.toString(),
+              ),
+            )
             .toList(),
       ),
     );
@@ -141,7 +161,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         backgroundColor: UpayColors.adminSurface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: UpayColors.adminTextSecondary, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: UpayColors.adminTextSecondary,
+            size: 20,
+          ),
           tooltip: 'Return to Consumer App',
           onPressed: () {
             Navigator.pushReplacement(
@@ -181,27 +205,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         actions: [
           IconButton(
             tooltip: 'User Trust Profile (USER001)',
-            icon: const Icon(Icons.account_circle_outlined, color: UpayColors.adminCyan, size: 24),
+            icon: const Icon(
+              Icons.account_circle_outlined,
+              color: UpayColors.adminCyan,
+              size: 24,
+            ),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const TrustProfileScreen(userId: 'USER001')),
+                MaterialPageRoute(
+                  builder: (_) => const TrustProfileScreen(userId: 'USER001'),
+                ),
               );
             },
           ),
           IconButton(
             tooltip: 'Run Demo Scenarios (Judge Mode)',
-            icon: const Icon(Icons.play_circle_fill_rounded, color: UpayColors.accentYellow, size: 26),
+            icon: const Icon(
+              Icons.play_circle_fill_rounded,
+              color: UpayColors.accentYellow,
+              size: 26,
+            ),
             onPressed: () => showDemoScenariosDialog(context),
           ),
           IconButton(
             tooltip: 'Refresh Intelligence',
-            icon: const Icon(Icons.refresh_rounded, color: UpayColors.adminTextSecondary, size: 22),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: UpayColors.adminTextSecondary,
+              size: 22,
+            ),
             onPressed: _loadDashboardData,
           ),
           IconButton(
             tooltip: 'Sign Out of SOC',
-            icon: const Icon(Icons.logout_rounded, color: UpayColors.adminTextMuted, size: 20),
+            icon: const Icon(
+              Icons.logout_rounded,
+              color: UpayColors.adminTextMuted,
+              size: 20,
+            ),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -218,18 +260,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           indicatorColor: UpayColors.accentYellow,
           indicatorWeight: 3,
           isScrollable: true,
-          labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
+          labelStyle: GoogleFonts.inter(
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
           tabs: const [
             Tab(icon: Icon(Icons.radar_rounded), text: 'Live Risk Feed'),
             Tab(icon: Icon(Icons.insights_rounded), text: 'Security Analytics'),
             Tab(icon: Icon(Icons.hub_rounded), text: 'Mule Graph Intelligence'),
-            Tab(icon: Icon(Icons.chat_bubble_outline_rounded), text: 'Bangla Scam NLP'),
+            Tab(
+              icon: Icon(Icons.chat_bubble_outline_rounded),
+              text: 'Bangla Scam NLP',
+            ),
             Tab(icon: Icon(Icons.history_edu_rounded), text: 'Audit Trail'),
           ],
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: UpayColors.accentYellow))
+          ? const Center(
+              child: CircularProgressIndicator(color: UpayColors.accentYellow),
+            )
           : TabBarView(
               controller: _tabController,
               children: [
@@ -258,15 +308,30 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           Row(
             children: [
               Expanded(
-                child: _buildKpiCard('Total Transactions', '25,430', Icons.analytics_outlined, Colors.blue),
+                child: _buildKpiCard(
+                  'Total Transactions',
+                  '25,430',
+                  Icons.analytics_outlined,
+                  Colors.blue,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _buildKpiCard('High Risk', '42', Icons.error_outline, UpayColors.riskHigh),
+                child: _buildKpiCard(
+                  'High Risk',
+                  '42',
+                  Icons.error_outline,
+                  UpayColors.riskHigh,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _buildKpiCard('Medium Risk', '186', Icons.warning_amber_rounded, UpayColors.riskMedium),
+                child: _buildKpiCard(
+                  'Medium Risk',
+                  '186',
+                  Icons.warning_amber_rounded,
+                  UpayColors.riskMedium,
+                ),
               ),
             ],
           ),
@@ -274,11 +339,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           Row(
             children: [
               Expanded(
-                child: _buildKpiCard('Blocked', '31', Icons.block_flipped, Colors.redAccent),
+                child: _buildKpiCard(
+                  'Blocked',
+                  '31',
+                  Icons.block_flipped,
+                  Colors.redAccent,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _buildKpiCard('Under Review', '18', Icons.pending_actions_rounded, Colors.amber),
+                child: _buildKpiCard(
+                  'Under Review',
+                  '18',
+                  Icons.pending_actions_rounded,
+                  Colors.amber,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -286,10 +361,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const FraudCasesScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const FraudCasesScreen(),
+                      ),
                     );
                   },
-                  child: _buildKpiCard('Active Cases', '3 Cases', Icons.folder_shared_outlined, Colors.cyan, isClickable: true),
+                  child: _buildKpiCard(
+                    'Active Cases',
+                    '3 Cases',
+                    Icons.folder_shared_outlined,
+                    Colors.cyan,
+                    isClickable: true,
+                  ),
                 ),
               ),
             ],
@@ -336,7 +419,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             Container(
               padding: const EdgeInsets.all(30),
               alignment: Alignment.center,
-              child: Text('No transactions recorded yet.', style: GoogleFonts.inter(color: Colors.white54)),
+              child: Text(
+                'No transactions recorded yet.',
+                style: GoogleFonts.inter(color: Colors.white54),
+              ),
             )
           else
             ..._transactions.map((t) => _buildLiveTransactionCard(t)),
@@ -345,7 +431,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     );
   }
 
-  Widget _buildKpiCard(String label, String value, IconData icon, Color color, {bool isClickable = false}) {
+  Widget _buildKpiCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color, {
+    bool isClickable = false,
+  }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -361,7 +453,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             children: [
               Icon(icon, color: color, size: 20),
               if (isClickable)
-                const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 12),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white38,
+                  size: 12,
+                ),
             ],
           ),
           const SizedBox(height: 10),
@@ -376,10 +472,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           const SizedBox(height: 2),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: Colors.white60,
-            ),
+            style: GoogleFonts.inter(fontSize: 11, color: Colors.white60),
           ),
         ],
       ),
@@ -388,8 +481,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
 
   Widget _buildLiveTransactionCard(TransactionModel t) {
     final risk = t.riskResult;
-    final score = risk?.riskScore ?? (t.amount >= 40000 ? 94 : (t.amount >= 8000 ? 56 : 12));
-    final level = risk?.riskLevel ?? (score >= 71 ? RiskLevel.high : (score >= 31 ? RiskLevel.medium : RiskLevel.low));
+    final score =
+        risk?.riskScore ??
+        (t.amount >= 40000 ? 94 : (t.amount >= 8000 ? 56 : 12));
+    final level =
+        risk?.riskLevel ??
+        (score >= 71
+            ? RiskLevel.high
+            : (score >= 31 ? RiskLevel.medium : RiskLevel.low));
 
     final (Color badgeColor, String levelText) = switch (level) {
       RiskLevel.high => (UpayColors.riskHigh, 'HIGH RISK'),
@@ -403,7 +502,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
-          color: level == RiskLevel.high ? UpayColors.riskHigh.withOpacity(0.5) : Colors.white12,
+          color: level == RiskLevel.high
+              ? UpayColors.riskHigh.withOpacity(0.5)
+              : Colors.white12,
           width: level == RiskLevel.high ? 1.5 : 1,
         ),
       ),
@@ -438,12 +539,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                       const SizedBox(width: 8),
                       Text(
                         '• User: ${t.userId}',
-                        style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
                       ),
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: badgeColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
@@ -474,7 +581,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                   ),
                   Text(
                     Formatters.formatTimestamp(t.timestamp),
-                    style: GoogleFonts.inter(fontSize: 11, color: Colors.white54),
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: Colors.white54,
+                    ),
                   ),
                 ],
               ),
@@ -485,8 +595,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  _indicatorChip(t.deviceId != 'DEVICE001' ? 'New Device' : 'Trusted Device', t.deviceId != 'DEVICE001'),
-                  _indicatorChip(t.location.toLowerCase() != 'dhaka' ? 'Unusual Location' : 'Normal Location', t.location.toLowerCase() != 'dhaka'),
+                  _indicatorChip(
+                    t.deviceId != 'DEVICE001' ? 'New Device' : 'Trusted Device',
+                    t.deviceId != 'DEVICE001',
+                  ),
+                  _indicatorChip(
+                    t.location.toLowerCase() != 'dhaka'
+                        ? 'Unusual Location'
+                        : 'Normal Location',
+                    t.location.toLowerCase() != 'dhaka',
+                  ),
                   if (t.amount >= 20000) _indicatorChip('High Amount', true),
                   if (score >= 70) _indicatorChip('Rapid Transactions', true),
                 ],
@@ -498,7 +616,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 children: [
                   Text(
                     'Tap to Investigate (SHAP & Graph) →',
-                    style: GoogleFonts.inter(fontSize: 12, color: UpayColors.accentYellow, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: UpayColors.accentYellow,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -515,7 +637,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       decoration: BoxDecoration(
         color: isAlert ? UpayColors.riskHigh.withOpacity(0.2) : Colors.white10,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: isAlert ? UpayColors.riskHigh.withOpacity(0.4) : Colors.white12),
+        border: Border.all(
+          color: isAlert
+              ? UpayColors.riskHigh.withOpacity(0.4)
+              : Colors.white12,
+        ),
       ),
       child: Text(
         text,
@@ -537,7 +663,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         children: [
           Text(
             'RISK SCORE DISTRIBUTION',
-            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white70, letterSpacing: 1.1),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.white70,
+              letterSpacing: 1.1,
+            ),
           ),
           const SizedBox(height: 12),
 
@@ -560,30 +691,98 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (val, meta) {
-                        const labels = ['0-20', '21-40', '41-60', '61-80', '81-100'];
+                        const labels = [
+                          '0-20',
+                          '21-40',
+                          '41-60',
+                          '61-80',
+                          '81-100',
+                        ];
                         final idx = val.toInt();
                         if (idx >= 0 && idx < labels.length) {
                           return Padding(
                             padding: const EdgeInsets.only(top: 6),
-                            child: Text(labels[idx], style: GoogleFonts.inter(fontSize: 10, color: Colors.white70)),
+                            child: Text(
+                              labels[idx],
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                color: Colors.white70,
+                              ),
+                            ),
                           );
                         }
                         return const SizedBox.shrink();
                       },
                     ),
                   ),
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                 ),
                 borderData: FlBorderData(show: false),
                 gridData: const FlGridData(show: false),
                 barGroups: [
-                  BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 21400, color: UpayColors.riskLow, width: 24, borderRadius: BorderRadius.circular(6))]),
-                  BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 3802, color: Colors.greenAccent, width: 24, borderRadius: BorderRadius.circular(6))]),
-                  BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 800, color: UpayColors.riskMedium, width: 24, borderRadius: BorderRadius.circular(6))]),
-                  BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 450, color: Colors.orangeAccent, width: 24, borderRadius: BorderRadius.circular(6))]),
-                  BarChartGroupData(x: 4, barRods: [BarChartRodData(toY: 320, color: UpayColors.riskHigh, width: 24, borderRadius: BorderRadius.circular(6))]),
+                  BarChartGroupData(
+                    x: 0,
+                    barRods: [
+                      BarChartRodData(
+                        toY: 21400,
+                        color: UpayColors.riskLow,
+                        width: 24,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ],
+                  ),
+                  BarChartGroupData(
+                    x: 1,
+                    barRods: [
+                      BarChartRodData(
+                        toY: 3802,
+                        color: Colors.greenAccent,
+                        width: 24,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ],
+                  ),
+                  BarChartGroupData(
+                    x: 2,
+                    barRods: [
+                      BarChartRodData(
+                        toY: 800,
+                        color: UpayColors.riskMedium,
+                        width: 24,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ],
+                  ),
+                  BarChartGroupData(
+                    x: 3,
+                    barRods: [
+                      BarChartRodData(
+                        toY: 450,
+                        color: Colors.orangeAccent,
+                        width: 24,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ],
+                  ),
+                  BarChartGroupData(
+                    x: 4,
+                    barRods: [
+                      BarChartRodData(
+                        toY: 320,
+                        color: UpayColors.riskHigh,
+                        width: 24,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -593,7 +792,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
 
           Text(
             'WEEKLY NORMAL VS FLAGGED VOLUME',
-            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white70, letterSpacing: 1.1),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.white70,
+              letterSpacing: 1.1,
+            ),
           ),
           const SizedBox(height: 12),
 
@@ -622,7 +826,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                       children: [
                         SizedBox(
                           width: 38,
-                          child: Text(t['day'] as String, style: GoogleFonts.inter(color: Colors.white70, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            t['day'] as String,
+                            style: GoogleFonts.inter(
+                              color: Colors.white70,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                         Expanded(
                           child: ClipRRect(
@@ -631,14 +841,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                               value: (t['normal'] as num) / 5000.0,
                               minHeight: 10,
                               backgroundColor: Colors.white12,
-                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.blueAccent,
+                              ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Text(
                           '${t['flagged']} flagged',
-                          style: GoogleFonts.inter(color: UpayColors.riskHigh, fontSize: 11, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.inter(
+                            color: UpayColors.riskHigh,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -672,11 +888,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
               children: [
                 // Synthetic disclaimer badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.purple.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.purpleAccent.withOpacity(0.4)),
+                    border: Border.all(
+                      color: Colors.purpleAccent.withOpacity(0.4),
+                    ),
                   ),
                   child: Text(
                     _modelEval.datasetSource,
@@ -697,13 +918,37 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 // 4 metrics grid
                 Row(
                   children: [
-                    Expanded(child: _metricPill('Precision', '${(_modelEval.precision * 100).toStringAsFixed(2)}%', Colors.cyanAccent)),
+                    Expanded(
+                      child: _metricPill(
+                        'Precision',
+                        '${(_modelEval.precision * 100).toStringAsFixed(2)}%',
+                        Colors.cyanAccent,
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: _metricPill('Recall', '${(_modelEval.recall * 100).toStringAsFixed(2)}%', Colors.greenAccent)),
+                    Expanded(
+                      child: _metricPill(
+                        'Recall',
+                        '${(_modelEval.recall * 100).toStringAsFixed(2)}%',
+                        Colors.greenAccent,
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: _metricPill('F1-Score', _modelEval.f1Score.toStringAsFixed(4), Colors.amberAccent)),
+                    Expanded(
+                      child: _metricPill(
+                        'F1-Score',
+                        _modelEval.f1Score.toStringAsFixed(4),
+                        Colors.amberAccent,
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: _metricPill('ROC-AUC', _modelEval.rocAuc.toStringAsFixed(4), Colors.purpleAccent)),
+                    Expanded(
+                      child: _metricPill(
+                        'ROC-AUC',
+                        _modelEval.rocAuc.toStringAsFixed(4),
+                        Colors.purpleAccent,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -711,7 +956,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 // Confusion Matrix
                 Text(
                   'Held-Out Confusion Matrix (1,200 Samples)',
-                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Container(
@@ -725,16 +974,32 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _cmCell('True Negative (Normal)', '${_modelEval.confusionMatrix['true_negative'] ?? 959}', Colors.greenAccent),
-                          _cmCell('False Positive (Type I)', '${_modelEval.confusionMatrix['false_positive'] ?? 1}', Colors.orangeAccent),
+                          _cmCell(
+                            'True Negative (Normal)',
+                            '${_modelEval.confusionMatrix['true_negative'] ?? 959}',
+                            Colors.greenAccent,
+                          ),
+                          _cmCell(
+                            'False Positive (Type I)',
+                            '${_modelEval.confusionMatrix['false_positive'] ?? 1}',
+                            Colors.orangeAccent,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _cmCell('False Negative (Type II)', '${_modelEval.confusionMatrix['false_negative'] ?? 0}', Colors.redAccent),
-                          _cmCell('True Positive (Fraud)', '${_modelEval.confusionMatrix['true_positive'] ?? 240}', Colors.cyanAccent),
+                          _cmCell(
+                            'False Negative (Type II)',
+                            '${_modelEval.confusionMatrix['false_negative'] ?? 0}',
+                            Colors.redAccent,
+                          ),
+                          _cmCell(
+                            'True Positive (Fraud)',
+                            '${_modelEval.confusionMatrix['true_positive'] ?? 240}',
+                            Colors.cyanAccent,
+                          ),
                         ],
                       ),
                     ],
@@ -745,7 +1010,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 // Ranked Feature Importances
                 Text(
                   'Feature Importance Contribution (SHAP Ranking)',
-                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 ..._modelEval.featuresRanked.map((f) {
@@ -759,7 +1028,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                           width: 130,
                           child: Text(
                             name.replaceAll('_', ' ').toUpperCase(),
-                            style: GoogleFonts.inter(fontSize: 11, color: Colors.white70),
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: Colors.white70,
+                            ),
                           ),
                         ),
                         Expanded(
@@ -769,7 +1041,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                               value: imp / 0.4,
                               minHeight: 8,
                               backgroundColor: Colors.white12,
-                              valueColor: const AlwaysStoppedAnimation<Color>(UpayColors.accentYellow),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                UpayColors.accentYellow,
+                              ),
                             ),
                           ),
                         ),
@@ -778,7 +1052,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                           width: 40,
                           child: Text(
                             '${(imp * 100).toInt()}%',
-                            style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
@@ -804,9 +1082,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       ),
       child: Column(
         children: [
-          Text(title, style: GoogleFonts.inter(fontSize: 10, color: Colors.white60)),
+          Text(
+            title,
+            style: GoogleFonts.inter(fontSize: 10, color: Colors.white60),
+          ),
           const SizedBox(height: 4),
-          Text(val, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
+          Text(
+            val,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
@@ -815,8 +1103,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   Widget _cmCell(String label, String count, Color color) {
     return Column(
       children: [
-        Text(count, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w900, color: color)),
-        Text(label, style: GoogleFonts.inter(fontSize: 10, color: Colors.white60)),
+        Text(
+          count,
+          style: GoogleFonts.inter(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 10, color: Colors.white60),
+        ),
       ],
     );
   }
@@ -824,9 +1122,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   Widget _legendItem(String text, Color color) {
     return Row(
       children: [
-        Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 6),
-        Text(text, style: GoogleFonts.inter(fontSize: 12, color: Colors.white70)),
+        Text(
+          text,
+          style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+        ),
       ],
     );
   }
@@ -899,7 +1204,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: actionColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(6),
@@ -926,7 +1234,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 ],
               ),
               Text(
-                Formatters.formatTimestamp(DateTime.tryParse(log.timestamp) ?? DateTime.now()),
+                Formatters.formatTimestamp(
+                  DateTime.tryParse(log.timestamp) ?? DateTime.now(),
+                ),
                 style: GoogleFonts.inter(fontSize: 11, color: Colors.white54),
               ),
             ],
@@ -936,12 +1246,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             children: [
               Text(
                 'Analyst: ${log.analystId}',
-                style: GoogleFonts.inter(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w600),
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(width: 12),
               Text(
                 'Transaction: ${log.transactionId}',
-                style: GoogleFonts.inter(fontSize: 12, color: UpayColors.accentYellow),
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: UpayColors.accentYellow,
+                ),
               ),
             ],
           ),
@@ -959,7 +1276,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     final txnId = alert['transaction_id']?.toString() ?? 'TXN-10453';
     final amount = (alert['amount'] as num?)?.toDouble() ?? 50000.0;
     final score = alert['risk_score']?.toString() ?? '94';
-    final indicators = (alert['indicators'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+    final indicators =
+        (alert['indicators'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
         ['New Device', 'Unusual Location', 'High Velocity'];
 
     return Container(
@@ -982,7 +1302,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_amber_rounded, color: UpayColors.riskHigh, size: 24),
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: UpayColors.riskHigh,
+                size: 24,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -1042,16 +1366,25 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 style: ElevatedButton.styleFrom(
                   backgroundColor: UpayColors.riskHigh,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 icon: const Icon(Icons.search, size: 16),
                 label: Text(
                   'Open Investigation',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12),
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
                 onPressed: () {
-                  final matching = _transactions.where((t) => t.id == txnId).firstOrNull ??
+                  final matching =
+                      _transactions.where((t) => t.id == txnId).firstOrNull ??
                       TransactionModel(
                         id: txnId,
                         userId: alert['user_id']?.toString() ?? 'USER001',
@@ -1070,7 +1403,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => RiskInvestigationScreen(transaction: matching),
+                      builder: (_) =>
+                          RiskInvestigationScreen(transaction: matching),
                     ),
                   );
                 },

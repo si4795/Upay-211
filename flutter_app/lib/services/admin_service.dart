@@ -5,7 +5,35 @@ import 'api_service.dart';
 
 class AdminService {
   final ApiService _apiService = ApiService();
+
   ApiService get apiService => _apiService;
+
+  Future<List<AuditLogEntry>> fetchAuditLogs() async {
+    try {
+      final res = await _apiService.getList('/api/v1/admin/audit-logs');
+      return res.map((e) => AuditLogEntry.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (_) {
+      return [
+        const AuditLogEntry(
+          logId: 'AUD-1001',
+          analystId: 'SYSTEM_POLICY',
+          action: 'HOLD',
+          transactionId: 'TXN-10342',
+          timestamp: '2026-10-03T12:00:00',
+          notes: 'Auto-held: High Risk ATO signals (Score 94).',
+        ),
+      ];
+    }
+  }
+
+  Future<ModelEvaluationData> fetchModelEvaluation() async {
+    try {
+      final res = await _apiService.get('/api/v1/admin/model-evaluation');
+      return ModelEvaluationData.fromJson(res);
+    } catch (_) {
+      return const ModelEvaluationData();
+    }
+  }
 
   Future<AnalyticsData> fetchAnalytics() async {
     try {
@@ -19,9 +47,11 @@ class AdminService {
 
   Future<List<TransactionModel>> fetchAdminTransactions() async {
     try {
-      final res = await _apiService.getList('/api/v1/admin/transactions');
-      if (res.isNotEmpty) {
-        return res.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)).toList();
+      final res = await _apiService.get('/api/v1/admin/transactions');
+      if (res is List) {
+        return (res as List)
+            .map((e) => TransactionModel.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
     } catch (_) {}
 
@@ -49,10 +79,27 @@ class AdminService {
           decision: RiskDecision.hold,
           customerMessage: 'Transaction temporarily unavailable.',
           riskFactors: [
-            RiskFactor(feature: 'device_change', impact: 0.38, message: 'Unrecognized Device Fingerprint (DEVICE009)'),
-            RiskFactor(feature: 'amount_deviation', impact: 0.32, message: 'Amount significantly exceeds user normal pattern (+৳47,500)'),
-            RiskFactor(feature: 'velocity', impact: 0.24, message: 'Multiple rapid transactions detected (8 txns/hr)'),
-            RiskFactor(feature: 'location_change', impact: 0.18, message: 'Abnormal geographical jump (Dhaka to Chattogram)'),
+            RiskFactor(
+              feature: 'device_change',
+              impact: 0.38,
+              message: 'Unrecognized Device Fingerprint (DEVICE009)',
+            ),
+            RiskFactor(
+              feature: 'amount_deviation',
+              impact: 0.32,
+              message:
+                  'Amount significantly exceeds user normal pattern (+৳47,500)',
+            ),
+            RiskFactor(
+              feature: 'velocity',
+              impact: 0.24,
+              message: 'Multiple rapid transactions detected (8 txns/hr)',
+            ),
+            RiskFactor(
+              feature: 'location_change',
+              impact: 0.18,
+              message: 'Abnormal geographical jump (Dhaka to Chattogram)',
+            ),
           ],
           anomalyScore: 0.89,
         ),
@@ -78,8 +125,16 @@ class AdminService {
           decision: RiskDecision.verify,
           customerMessage: 'Additional verification is required to complete this transaction.',
           riskFactors: [
-            RiskFactor(feature: 'new_receiver', impact: 0.42, message: 'First-time transfer to unverified recipient'),
-            RiskFactor(feature: 'amount_deviation', impact: 0.30, message: 'Moderately exceeds normal transfer amount'),
+            RiskFactor(
+              feature: 'new_receiver',
+              impact: 0.42,
+              message: 'First-time transfer to unverified recipient',
+            ),
+            RiskFactor(
+              feature: 'amount_deviation',
+              impact: 0.30,
+              message: 'Moderately exceeds normal transfer amount',
+            ),
           ],
           anomalyScore: 0.45,
         ),
@@ -105,8 +160,16 @@ class AdminService {
           decision: RiskDecision.allow,
           customerMessage: 'Money Sent Successfully',
           riskFactors: [
-            RiskFactor(feature: 'trusted_device', impact: 0.05, message: 'Recognized primary trusted device'),
-            RiskFactor(feature: 'normal_amount', impact: 0.04, message: 'Amount matches historical average'),
+            RiskFactor(
+              feature: 'trusted_device',
+              impact: 0.05,
+              message: 'Recognized primary trusted device',
+            ),
+            RiskFactor(
+              feature: 'normal_amount',
+              impact: 0.04,
+              message: 'Amount matches historical average',
+            ),
           ],
           anomalyScore: 0.08,
         ),
@@ -116,9 +179,11 @@ class AdminService {
 
   Future<List<AdminFraudCase>> fetchFraudCases() async {
     try {
-      final res = await _apiService.getList('/api/v1/admin/cases');
-      if (res.isNotEmpty) {
-        return res.map((e) => AdminFraudCase.fromJson(e as Map<String, dynamic>)).toList();
+      final res = await _apiService.get('/api/v1/admin/cases');
+      if (res is List) {
+        return (res as List)
+            .map((e) => AdminFraudCase.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
     } catch (_) {}
 
@@ -199,49 +264,110 @@ class AdminService {
             'in_degree': 4,
             'pattern': 'Fan-In Aggregator (Potential Money-Mule Destination)',
             'risk_level': 'HIGH',
-            'recommendation': 'Requires Investigation'
+            'recommendation': 'Requires Investigation',
           },
           {
             'node': 'USER_MULE_A',
             'out_degree': 4,
             'pattern': 'Fan-Out Disperser (Rapid Smurfing Pattern)',
             'risk_level': 'HIGH',
-            'recommendation': 'Requires Investigation'
-          }
+            'recommendation': 'Requires Investigation',
+          },
         ],
         'nodes': [
-          {'id': 'USER_MULE_A', 'is_flagged': true, 'in_degree': 0, 'out_degree': 4},
-          {'id': 'USER_MULE_B', 'is_flagged': false, 'in_degree': 1, 'out_degree': 1},
-          {'id': 'USER_MULE_C', 'is_flagged': false, 'in_degree': 1, 'out_degree': 1},
-          {'id': 'USER_MULE_D', 'is_flagged': false, 'in_degree': 1, 'out_degree': 1},
-          {'id': 'USER_MULE_E', 'is_flagged': false, 'in_degree': 1, 'out_degree': 1},
-          {'id': 'USER_SYNDICATE_X', 'is_flagged': true, 'in_degree': 4, 'out_degree': 0},
-          {'id': 'USER001', 'is_flagged': false, 'in_degree': 0, 'out_degree': 3},
-          {'id': 'USER102', 'is_flagged': false, 'in_degree': 1, 'out_degree': 0},
+          {
+            'id': 'USER_MULE_A',
+            'is_flagged': true,
+            'in_degree': 0,
+            'out_degree': 4,
+          },
+          {
+            'id': 'USER_MULE_B',
+            'is_flagged': false,
+            'in_degree': 1,
+            'out_degree': 1,
+          },
+          {
+            'id': 'USER_MULE_C',
+            'is_flagged': false,
+            'in_degree': 1,
+            'out_degree': 1,
+          },
+          {
+            'id': 'USER_MULE_D',
+            'is_flagged': false,
+            'in_degree': 1,
+            'out_degree': 1,
+          },
+          {
+            'id': 'USER_MULE_E',
+            'is_flagged': false,
+            'in_degree': 1,
+            'out_degree': 1,
+          },
+          {
+            'id': 'USER_SYNDICATE_X',
+            'is_flagged': true,
+            'in_degree': 4,
+            'out_degree': 0,
+          },
+          {
+            'id': 'USER001',
+            'is_flagged': false,
+            'in_degree': 0,
+            'out_degree': 3,
+          },
+          {
+            'id': 'USER102',
+            'is_flagged': false,
+            'in_degree': 1,
+            'out_degree': 0,
+          },
         ],
         'edges': [
           {'source': 'USER_MULE_A', 'target': 'USER_MULE_B', 'amount': 25000.0},
           {'source': 'USER_MULE_A', 'target': 'USER_MULE_C', 'amount': 25000.0},
           {'source': 'USER_MULE_A', 'target': 'USER_MULE_D', 'amount': 25000.0},
           {'source': 'USER_MULE_A', 'target': 'USER_MULE_E', 'amount': 25000.0},
-          {'source': 'USER_MULE_B', 'target': 'USER_SYNDICATE_X', 'amount': 24500.0},
-          {'source': 'USER_MULE_C', 'target': 'USER_SYNDICATE_X', 'amount': 24500.0},
-          {'source': 'USER_MULE_D', 'target': 'USER_SYNDICATE_X', 'amount': 24500.0},
-          {'source': 'USER_MULE_E', 'target': 'USER_SYNDICATE_X', 'amount': 24500.0},
+          {
+            'source': 'USER_MULE_B',
+            'target': 'USER_SYNDICATE_X',
+            'amount': 24500.0,
+          },
+          {
+            'source': 'USER_MULE_C',
+            'target': 'USER_SYNDICATE_X',
+            'amount': 24500.0,
+          },
+          {
+            'source': 'USER_MULE_D',
+            'target': 'USER_SYNDICATE_X',
+            'amount': 24500.0,
+          },
+          {
+            'source': 'USER_MULE_E',
+            'target': 'USER_SYNDICATE_X',
+            'amount': 24500.0,
+          },
           {'source': 'USER001', 'target': 'USER102', 'amount': 500.0},
-        ]
+        ],
       };
     }
   }
 
   Future<BanglaScamResult> analyzeScamText(String text) async {
     try {
-      final res = await _apiService.post('/api/v1/admin/scam-nlp', {'text': text});
+      final res = await _apiService.post('/api/v1/admin/scam-nlp', {
+        'text': text,
+      });
       return BanglaScamResult.fromJson(res);
     } catch (_) {
       // Local fallback classifier
       final lower = text.toLowerCase();
-      if (lower.contains('pin') || lower.contains('পিন') || lower.contains('otp') || lower.contains('ওটিপি')) {
+      if (lower.contains('pin') ||
+          lower.contains('পিন') ||
+          lower.contains('otp') ||
+          lower.contains('ওটিপি')) {
         return BanglaScamResult(
           text: text,
           isScam: true,
@@ -267,64 +393,4 @@ class AdminService {
       );
     }
   }
-
-  Future<List<AuditLogEntry>> fetchAuditLogs() async {
-    try {
-      final res = await _apiService.getList('/api/v1/admin/audit-logs');
-      if (res.isNotEmpty) {
-        return res.map((e) => AuditLogEntry.fromJson(e as Map<String, dynamic>)).toList();
-      }
-    } catch (_) {}
-    return [
-      AuditLogEntry(
-        logId: 'AUD-1001',
-        analystId: 'ADMIN001',
-        action: 'HOLD',
-        transactionId: 'TXN-10342',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 15)).toIso8601String(),
-        notes: 'Observed new device and unusually large transaction compared with normal baseline.',
-      ),
-      AuditLogEntry(
-        logId: 'AUD-1002',
-        analystId: 'ADMIN002',
-        action: 'REVIEW',
-        transactionId: 'TXN-10341',
-        timestamp: DateTime.now().subtract(const Duration(minutes: 45)).toIso8601String(),
-        notes: 'Triggered automated OTP challenge verification for new unverified recipient.',
-      ),
-    ];
-  }
-
-  Future<ModelEvaluationData> fetchModelEvaluation() async {
-    try {
-      final res = await _apiService.get('/api/v1/admin/model-evaluation');
-      return ModelEvaluationData.fromJson(res);
-    } catch (_) {
-      return const ModelEvaluationData();
-    }
-  }
-
-  Future<Map<String, dynamic>> fetchUserProfile(String userId) async {
-    try {
-      return await _apiService.get('/api/v1/admin/user-profile/$userId');
-    } catch (_) {
-      return {
-        'user_id': userId,
-        'name': 'Karim Ahmed',
-        'phone': '01712345678',
-        'avg_transaction_amount': 650.0,
-        'typical_hours': '10 AM – 8 PM',
-        'avg_transactions_per_day': 3,
-        'typical_location': 'Dhaka',
-        'trusted_devices': ['DEVICE001', 'DEVICE002'],
-        'known_receivers': {
-          'USER102': 'Rahim (Trusted)',
-          'USER245': 'Karim (Known)',
-          'MERCHANT01': 'Hasan (Known Merchant)'
-        },
-        'reported_suspicious_receivers': ['USER_ROGUE_99', '01999887766'],
-      };
-    }
-  }
 }
-

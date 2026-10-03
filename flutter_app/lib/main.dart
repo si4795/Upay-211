@@ -11,6 +11,10 @@ import 'screens/home/home_screen.dart';
 import 'screens/send_money/send_money_screen.dart';
 import 'screens/transactions/transaction_history_screen.dart';
 import 'screens/security/customer_security_center_screen.dart';
+import 'screens/security/trust_and_safety_center_screen.dart';
+import 'screens/account/account_screen.dart';
+import 'screens/more/more_screen.dart';
+import 'screens/qr/bangla_qr_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/admin/admin_login_screen.dart';
@@ -43,6 +47,10 @@ class UpayApp extends StatelessWidget {
           AppRoutes.sendMoney: (_) => const SendMoneyScreen(),
           AppRoutes.transactions: (_) => const TransactionHistoryScreen(),
           AppRoutes.security: (_) => const CustomerSecurityCenterScreen(),
+          AppRoutes.trustCenter: (_) => const TrustAndSafetyCenterScreen(),
+          AppRoutes.account: (_) => const AccountScreen(),
+          AppRoutes.more: (_) => const MoreScreen(),
+          AppRoutes.qr: (_) => const BanglaQrScreen(),
           AppRoutes.profile: (_) => const ProfileScreen(),
           AppRoutes.admin: (_) => const AdminDashboardScreen(),
           AppRoutes.adminLogin: (_) => const AdminLoginScreen(),

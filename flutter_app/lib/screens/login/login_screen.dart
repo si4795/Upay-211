@@ -275,11 +275,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Icon(Icons.shield_outlined, size: 16, color: UpayColors.textLight),
                   const SizedBox(width: 6),
-                  Text(
-                    'সিমুলেশন মোড • কোনো আসল ডেটা সংরক্ষণ করা হয় না',
-                    style: GoogleFonts.hindSiliguri(
-                      fontSize: 11,
-                      color: UpayColors.textMuted,
+                  Flexible(
+                    child: Text(
+                      'সিমুলেশন মোড • কোনো আসল ডেটা সংরক্ষণ করা হয় না',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.hindSiliguri(
+                        fontSize: 11,
+                        color: UpayColors.textMuted,
+                      ),
                     ),
                   ),
                 ],

@@ -60,21 +60,21 @@ class RiskEngine:
         )
 
         # 4. Policy Classification
-        # 0-30 LOW, 31-70 MEDIUM, 71-100 HIGH
-        if risk_score <= 30:
+        # 0-39 LOW, 40-69 MEDIUM, 70-100 HIGH
+        if risk_score <= 39:
             risk_level = "LOW"
             decision = "ALLOW"
-            customer_message = "Money Sent Successfully"
+            customer_message = "টাকা পাঠানো সফল হয়েছে"
             status = "SUCCESS"
-        elif risk_score <= 70:
+        elif risk_score <= 69:
             risk_level = "MEDIUM"
             decision = "VERIFY"
-            customer_message = "Additional verification is required to complete this transaction."
+            customer_message = "অতিরিক্ত যাচাই প্রয়োজন (Challenge Verification)"
             status = "VERIFY_REQUIRED"
         else:
             risk_level = "HIGH"
             decision = "HOLD"
-            customer_message = "Transaction temporarily unavailable. For your security, this transaction needs additional review."
+            customer_message = "লেনদেনটি সাময়িকভাবে স্থগিত। আপনার নিরাপত্তার স্বার্থে লেনদেনটি পর্যালোচনার জন্য রাখা হয়েছে।"
             status = "HOLD"
 
         # 5. Explainable AI (SHAP Factors)
@@ -83,6 +83,20 @@ class RiskEngine:
         # 6. Graph Analytics Update (if recording)
         if record_history:
             self.graph_analyzer.add_transaction(user_id, receiver_id, amount)
+
+        # Structured 3-Question Evidence
+        if risk_score >= 70:
+            what_happened = f"আজ {location} থেকে একটি অস্বাভাবিক লেনদেনের অনুরোধে ৳{amount:,.0f} স্থানান্তরের চেষ্টা করা হয়।"
+            why_risky = f"সিস্টেমে অ্যাকাউন্ট টেকওভার (ATO) সংকেত মিলেছে। ঐতিহাসিক গড় (৳{profile.get('avg_transaction_amount', 650):,.0f}) থেকে চরম বিচ্যুতি এবং অস্বাভাবিক গতি পরিলক্ষিত।"
+            what_next = "১. লেনদেন সাময়িক স্থগিত (HOLD) রাখা হয়েছে।\n২. আপনি না করে থাকলে অ্যাকাউন্ট অবিলম্বে ফ্রিজ করুন।\n৩. ১৬২৬৮ হেল্পলাইনে যোগাযোগ করুন।"
+        elif risk_score >= 40:
+            what_happened = f"নতুন প্রাপক নম্বরে ৳{amount:,.0f} পাঠানোর অনুরোধ প্রক্রিয়াধীন।"
+            why_risky = "প্রাপকের সাথে পূর্বে লেনদেনের ইতিহাস নেই এবং সাপ্তাহিক গড়ের চেয়ে বেশি অংক।"
+            what_next = "১. লেনদেন সম্পন্ন করতে অতিরিক্ত ওটিপি (OTP) যাচাই সম্পন্ন করুন।\n২. প্রাপকের নম্বর নিশ্চিত করুন।"
+        else:
+            what_happened = f"বিশ্বস্ত ডিভাইস থেকে পরিচিত প্রাপককে ৳{amount:,.0f} সফলভাবে প্রেরিত হয়েছে।"
+            why_risky = "কোনো ঝুঁকি পাওয়া যায়নি। ট্রাস্ট স্কোর উচ্চ (৯৮/১০০)।"
+            what_next = "লেনদেন নিরাপদ। কোনো পদক্ষেপের প্রয়োজন নেই।"
 
         # Build full result record
         txn_id = txn_data.get('transaction_id') or f"TXN-{10000 + len(self.transaction_history) + 1}"
@@ -109,6 +123,9 @@ class RiskEngine:
             'risk_factors': risk_factors,
             'anomaly_score': round(anomaly_score, 3),
             'supervised_probability': round(supervised_prob, 4),
+            'what_happened': what_happened,
+            'why_risky': why_risky,
+            'what_next': what_next,
             'velocity_intelligence': velocity_signals,
             'receiver_intelligence': receiver_signals,
             'ato_intelligence': ato_signals,

@@ -37,7 +37,10 @@ def test_normal_transaction_low_risk(client):
     assert r_data["risk_level"] == "LOW"
     assert r_data["decision"] == "ALLOW"
     assert r_data["risk_score"] <= 30
-    assert "Successfully" in r_data["customer_message"]
+    assert "Successfully" in r_data["customer_message"] or "সফল" in r_data["customer_message"]
+    assert "what_happened" in r_data
+    assert "why_risky" in r_data
+    assert "what_next" in r_data
 
     # Test transaction execution endpoint
     txn_res = client.post("/api/v1/transactions", json=payload)
@@ -85,7 +88,10 @@ def test_high_risk_transaction_ato(client):
     assert len(r_data["risk_factors"]) > 0
 
     # Ensure neutral customer message without technical alarm
-    assert "temporarily unavailable" in r_data["customer_message"]
+    assert "temporarily unavailable" in r_data["customer_message"] or "স্থগিত" in r_data["customer_message"]
+    assert "what_happened" in r_data
+    assert "why_risky" in r_data
+    assert "what_next" in r_data
     assert "94" not in r_data["customer_message"] # No score in customer message
 
 def test_admin_endpoints(client):

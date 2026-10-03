@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../core/constants/colors.dart';
+import '../../core/utils/formatters.dart';
+import '../../models/transaction.dart';
 import '../../providers/transaction_provider.dart';
 import '../../widgets/transaction_tile.dart';
+import '../../widgets/transaction_risk_detail_sheet.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -15,11 +19,20 @@ class TransactionHistoryScreen extends StatefulWidget {
 class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _selectedFilterIndex = 0;
+
+  final List<String> _filterCategories = [
+    'সব',
+    'সেন্ড মানি',
+    'রিসিভড মানি',
+    'মোবাইল রিচার্জ',
+    'পে বিল',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -31,126 +44,323 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
   @override
   Widget build(BuildContext context) {
     final txnProvider = context.watch<TransactionProvider>();
+    final allTxns = txnProvider.transactions;
 
     return Scaffold(
       backgroundColor: UpayColors.bgLight,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: UpayColors.textDark,
+        elevation: 0,
         title: Text(
-          'লেনদেনের বিবরণ (Statement)',
+          'হিস্টরি',
           style: GoogleFonts.hindSiliguri(
-            fontSize: 18,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
+            color: UpayColors.primaryBlue,
           ),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: UpayColors.accentYellow,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: UpayColors.accentYellow,
-          indicatorWeight: 3,
-          labelStyle: GoogleFonts.hindSiliguri(fontWeight: FontWeight.bold, fontSize: 14),
-          unselectedLabelStyle: GoogleFonts.hindSiliguri(fontSize: 14),
-          tabs: const [
-            Tab(text: 'সবগুলো (Recent)'),
-            Tab(text: 'আজকের (Today)'),
-            Tab(text: 'এই সপ্তাহের (This Week)'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicator: BoxDecoration(
+                color: UpayColors.accentYellow,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              dividerColor: Colors.transparent,
+              labelColor: UpayColors.primaryDark,
+              unselectedLabelColor: UpayColors.textMuted,
+              labelStyle: GoogleFonts.hindSiliguri(fontWeight: FontWeight.bold, fontSize: 14),
+              unselectedLabelStyle: GoogleFonts.hindSiliguri(fontWeight: FontWeight.w600, fontSize: 14),
+              tabs: const [
+                Tab(text: 'লেনদেন বিবরণী'),
+                Tab(text: 'লেনদেন সারসংক্ষেপ'),
+              ],
+            ),
+          ),
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildTransactionList(txnProvider.transactions),
-          _buildTransactionList(txnProvider.todayTransactions),
-          _buildTransactionList(txnProvider.thisWeekTransactions),
+          _buildStatementTab(allTxns),
+          _buildSummaryTab(allTxns),
         ],
       ),
     );
   }
 
-  Widget _buildTransactionList(List transactions) {
-    if (transactions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.receipt_long_outlined, size: 60, color: UpayColors.textLight.withOpacity(0.5)),
-            const SizedBox(height: 12),
-            Text(
-              'কোন লেনদেন পাওয়া যায়নি',
-              style: GoogleFonts.hindSiliguri(
-                fontSize: 15,
-                color: UpayColors.textMuted,
-              ),
-            ),
-          ],
+  // Tab 1: লেনদেন বিবরণী (Statement with filter chips & risk-badged list)
+  Widget _buildStatementTab(List<TransactionModel> transactions) {
+    final filtered = _getFilteredTransactions(transactions);
+
+    return Column(
+      children: [
+        // Category Filter Chips
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: List.generate(_filterCategories.length, (index) {
+              final isSelected = _selectedFilterIndex == index;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(_filterCategories[index]),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) setState(() => _selectedFilterIndex = index);
+                  },
+                  selectedColor: UpayColors.accentYellow,
+                  backgroundColor: Colors.white,
+                  labelStyle: GoogleFonts.hindSiliguri(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? UpayColors.primaryDark : UpayColors.textDark,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: isSelected ? UpayColors.accentYellow : UpayColors.borderSubtle,
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
         ),
-      );
+
+        // Transaction list
+        Expanded(
+          child: filtered.isEmpty
+              ? _buildEmptyState()
+              : ListView.builder(
+                  padding: const EdgeInsets.only(top: 4, bottom: 20),
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final txn = filtered[index];
+                    return TransactionTile(
+                      transaction: txn,
+                      onTap: () => TransactionRiskDetailSheet.show(context, txn),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  List<TransactionModel> _getFilteredTransactions(List<TransactionModel> list) {
+    switch (_selectedFilterIndex) {
+      case 1:
+        return list.where((t) => t.type == TransactionType.sendMoney).toList();
+      case 2:
+        return list.where((t) => t.type == TransactionType.addMoney).toList();
+      case 3:
+        return list.where((t) => t.receiverName.contains('Recharge')).toList();
+      case 4:
+        return list.where((t) => t.type == TransactionType.payBill).toList();
+      case 0:
+      default:
+        return list;
+    }
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: UpayColors.accentYellow.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.receipt_long_rounded, size: 40, color: UpayColors.primaryBlue),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'আপনার এখনো কোনো ট্রানজেকশন রেকর্ড নেই।',
+            style: GoogleFonts.hindSiliguri(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: UpayColors.textDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Tab 2: লেনদেন সারসংক্ষেপ (Summary with Category Donut Chart)
+  Widget _buildSummaryTab(List<TransactionModel> transactions) {
+    double totalSendMoney = 0;
+    double totalBills = 0;
+    double totalCashOut = 0;
+
+    for (final t in transactions) {
+      if (t.type == TransactionType.sendMoney) totalSendMoney += t.amount;
+      if (t.type == TransactionType.payBill) totalBills += t.amount;
+      if (t.type == TransactionType.cashOut) totalCashOut += t.amount;
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      itemCount: transactions.length,
-      itemBuilder: (context, index) {
-        final txn = transactions[index];
-        return TransactionTile(
-          transaction: txn,
-          onTap: () => _showTransactionDetails(context, txn),
-        );
-      },
-    );
-  }
+    final totalExpense = totalSendMoney + totalBills + totalCashOut;
 
-  void _showTransactionDetails(BuildContext context, dynamic txn) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Month Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'October 2026 (সমস্ত খরচ)',
+                style: GoogleFonts.hindSiliguri(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: UpayColors.primaryBlue,
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: UpayColors.textMuted),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Donut Chart Container
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: UpayColors.borderSubtle),
+            ),
+            child: Column(
               children: [
-                Text(
-                  'রসিদ বিবরণ',
-                  style: GoogleFonts.hindSiliguri(fontSize: 18, fontWeight: FontWeight.bold),
+                SizedBox(
+                  height: 180,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      PieChart(
+                        PieChartData(
+                          sectionsSpace: 4,
+                          centerSpaceRadius: 55,
+                          sections: [
+                            PieChartSectionData(
+                              value: totalSendMoney > 0 ? totalSendMoney : 1,
+                              color: Colors.blueAccent,
+                              title: '',
+                              radius: 22,
+                            ),
+                            PieChartSectionData(
+                              value: totalBills > 0 ? totalBills : 1,
+                              color: Colors.deepPurpleAccent,
+                              title: '',
+                              radius: 22,
+                            ),
+                            PieChartSectionData(
+                              value: totalCashOut > 0 ? totalCashOut : 1,
+                              color: Colors.orange,
+                              title: '',
+                              radius: 22,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'ব্যয়',
+                            style: GoogleFonts.hindSiliguri(fontSize: 12, color: UpayColors.textMuted),
+                          ),
+                          Text(
+                            Formatters.currency(totalExpense),
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: UpayColors.primaryBlue,
+                            ),
+                          ),
+                          Text(
+                            'October',
+                            style: GoogleFonts.inter(fontSize: 11, color: UpayColors.textLight),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
+                const SizedBox(height: 20),
+                _buildSummaryCategoryRow('সেন্ড মানি', totalSendMoney, Colors.blueAccent),
+                _buildSummaryCategoryRow('পে বিল', totalBills, Colors.deepPurpleAccent),
+                _buildSummaryCategoryRow('ক্যাশ আউট', totalCashOut, Colors.orange),
               ],
             ),
-            const Divider(),
-            const SizedBox(height: 8),
-            _detailRow('ট্রানজেকশন আইডি', txn.id),
-            _detailRow('প্রাপক', txn.receiverName),
-            _detailRow('প্রাপক নম্বর', txn.receiverPhone),
-            _detailRow('পরিমাণ', '৳${txn.amount.toStringAsFixed(2)}'),
-            _detailRow('চার্জ', '৳${txn.fee.toStringAsFixed(2)}'),
-            _detailRow('সর্বমোট', '৳${txn.total.toStringAsFixed(2)}'),
-            _detailRow('স্ট্যাটাস', txn.status.name.toUpperCase()),
-            const SizedBox(height: 16),
-          ],
-        ),
+          ),
+
+          const SizedBox(height: 24),
+          Text(
+            'সারসংক্ষেপ বিবরণ',
+            style: GoogleFonts.hindSiliguri(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: UpayColors.textDark,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _buildStatementTile('ক্যাশ ইন', 0.0, Icons.phone_android_rounded),
+          _buildStatementTile('অ্যাড মানি', 0.0, Icons.account_balance_wallet_outlined),
+          _buildStatementTile('রিসিভড মানি', 0.0, Icons.download_rounded),
+          _buildStatementTile('রেমিট্যান্স', 0.0, Icons.public_rounded),
+        ],
       ),
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _buildSummaryCategoryRow(String title, double amount, Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.hindSiliguri(color: UpayColors.textMuted, fontSize: 13)),
-          Text(value, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13)),
+          Row(
+            children: [
+              Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+              const SizedBox(width: 8),
+              Text(title, style: GoogleFonts.hindSiliguri(fontSize: 13, color: UpayColors.textDark)),
+            ],
+          ),
+          Text(Formatters.currency(amount), style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatementTile(String title, double amount, IconData icon) {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: UpayColors.borderSubtle),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: UpayColors.primaryBlue),
+        title: Text(title, style: GoogleFonts.hindSiliguri(fontWeight: FontWeight.w600)),
+        trailing: Text(Formatters.currency(amount), style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
       ),
     );
   }
