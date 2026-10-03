@@ -15,6 +15,8 @@ import 'graph_intelligence_screen.dart';
 import 'scam_nlp_screen.dart';
 import 'trust_profile_screen.dart';
 import 'demo_scenarios_dialog.dart';
+import 'admin_login_screen.dart';
+import '../home/home_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -134,9 +136,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B), // Modern Fintech Dark Theme
+      backgroundColor: UpayColors.adminBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1C2541),
+        backgroundColor: UpayColors.adminSurface,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: UpayColors.adminTextSecondary, size: 20),
+          tooltip: 'Return to Consumer App',
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          },
+        ),
         title: Row(
           children: [
             Container(
@@ -157,14 +170,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             const SizedBox(width: 10),
             Text(
               'Trust & Risk Intelligence Console',
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: UpayColors.adminTextPrimary,
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
             tooltip: 'User Trust Profile (USER001)',
-            icon: const Icon(Icons.account_circle_outlined, color: Colors.cyanAccent, size: 26),
+            icon: const Icon(Icons.account_circle_outlined, color: UpayColors.adminCyan, size: 24),
             onPressed: () {
               Navigator.push(
                 context,
@@ -174,19 +191,30 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           ),
           IconButton(
             tooltip: 'Run Demo Scenarios (Judge Mode)',
-            icon: const Icon(Icons.play_circle_fill_rounded, color: UpayColors.accentYellow, size: 28),
+            icon: const Icon(Icons.play_circle_fill_rounded, color: UpayColors.accentYellow, size: 26),
             onPressed: () => showDemoScenariosDialog(context),
           ),
           IconButton(
             tooltip: 'Refresh Intelligence',
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(Icons.refresh_rounded, color: UpayColors.adminTextSecondary, size: 22),
             onPressed: _loadDashboardData,
           ),
+          IconButton(
+            tooltip: 'Sign Out of SOC',
+            icon: const Icon(Icons.logout_rounded, color: UpayColors.adminTextMuted, size: 20),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 6),
         ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: UpayColors.accentYellow,
-          unselectedLabelColor: Colors.white60,
+          unselectedLabelColor: UpayColors.adminTextMuted,
           indicatorColor: UpayColors.accentYellow,
           indicatorWeight: 3,
           isScrollable: true,
@@ -321,7 +349,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2541),
+        color: UpayColors.adminCard,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white12),
       ),
@@ -370,7 +398,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     };
 
     return Card(
-      color: const Color(0xFF1C2541),
+      color: UpayColors.adminCard,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
@@ -517,7 +545,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             height: 220,
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF1C2541),
+              color: UpayColors.adminCard,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white12),
             ),
@@ -572,7 +600,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1C2541),
+              color: UpayColors.adminCard,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white12),
             ),
@@ -635,7 +663,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1C2541),
+              color: UpayColors.adminCard,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white12),
             ),
@@ -689,7 +717,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
+                    color: UpayColors.adminSurface,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -770,7 +798,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: UpayColors.adminSurface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.white12),
       ),
@@ -858,7 +886,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2541),
+        color: UpayColors.adminCard,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white12),
       ),

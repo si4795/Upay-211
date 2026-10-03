@@ -10,9 +10,9 @@ class TrustProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: UpayColors.adminBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: UpayColors.adminSurface,
         title: Text(
           'Trust Intelligence Profile — $userId',
           style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
@@ -27,9 +27,9 @@ class TrustProfileScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: UpayColors.adminCard,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: UpayColors.adminBorder),
               ),
               child: Row(
                 children: [
@@ -97,9 +97,9 @@ class TrustProfileScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: UpayColors.adminCard,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: UpayColors.adminBorder),
               ),
               child: Column(
                 children: [
@@ -121,9 +121,9 @@ class TrustProfileScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: UpayColors.adminCard,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isAlert ? UpayColors.riskHigh.withOpacity(0.4) : Colors.white12),
+        border: Border.all(color: isAlert ? UpayColors.riskHigh.withOpacity(0.4) : UpayColors.adminBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

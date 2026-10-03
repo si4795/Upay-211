@@ -43,9 +43,9 @@ class _FraudCasesScreenState extends State<FraudCasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: UpayColors.adminBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: UpayColors.adminSurface,
         title: Text(
           'Fraud Case Management',
           style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
@@ -58,7 +58,7 @@ class _FraudCasesScreenState extends State<FraudCasesScreen> {
                 // Filter chips
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  color: const Color(0xFF1E293B),
+                  color: UpayColors.adminSurface,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -104,11 +104,11 @@ class _FraudCasesScreenState extends State<FraudCasesScreen> {
     };
 
     return Card(
-      color: const Color(0xFF1E293B),
+      color: UpayColors.adminCard,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: Colors.white12),
+        side: const BorderSide(color: UpayColors.adminBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -147,7 +147,7 @@ class _FraudCasesScreenState extends State<FraudCasesScreen> {
               style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFFFFB800)),
             ),
             const SizedBox(height: 12),
-            const Divider(color: Colors.white12),
+            const Divider(color: UpayColors.adminBorder),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -171,7 +171,7 @@ class _FraudCasesScreenState extends State<FraudCasesScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: UpayColors.adminCard,
         title: Text('Update ${c.caseId}', style: GoogleFonts.inter(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,

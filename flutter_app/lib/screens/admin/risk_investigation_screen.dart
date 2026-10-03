@@ -93,9 +93,9 @@ class _RiskInvestigationScreenState extends State<RiskInvestigationScreen> {
     };
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // Dark investigation console
+      backgroundColor: UpayColors.adminBg, // Dark investigation console
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: UpayColors.adminSurface,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -317,7 +317,7 @@ class _RiskInvestigationScreenState extends State<RiskInvestigationScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: UpayColors.adminCard,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white12),
       ),
@@ -351,7 +351,7 @@ class _RiskInvestigationScreenState extends State<RiskInvestigationScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: UpayColors.adminCard,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white12),
       ),

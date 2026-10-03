@@ -60,7 +60,7 @@ class _ScamNlpScreenState extends State<ScamNlpScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1C2541),
+              color: UpayColors.adminCard,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white12),
             ),
@@ -109,7 +109,7 @@ class _ScamNlpScreenState extends State<ScamNlpScreen> {
 
           ..._presetScams.map((preset) {
             return Card(
-              color: const Color(0xFF1C2541),
+              color: UpayColors.adminCard,
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
                 dense: true,

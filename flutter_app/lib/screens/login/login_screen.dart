@@ -6,6 +6,7 @@ import '../../core/constants/colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../home/home_screen.dart';
+import '../admin/admin_login_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -245,7 +246,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
+
+              // Switch to Admin & SOC Portal
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+                  );
+                },
+                icon: const Icon(Icons.security_rounded, size: 16, color: UpayColors.primaryBlue),
+                label: Text(
+                  'Switch to Fraud Analyst & SOC Portal →',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: UpayColors.primaryBlue,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
 
               // Security notice
               Row(

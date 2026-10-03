@@ -7,7 +7,7 @@ void showDemoScenariosDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: UpayColors.adminCard,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       title: Row(
         children: [
@@ -122,7 +122,7 @@ Widget _scenarioCard(
   required VoidCallback onTap,
 }) {
   return Card(
-    color: const Color(0xFF0F172A),
+    color: UpayColors.adminSurface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
       side: BorderSide(color: badgeColor.withOpacity(0.4)),

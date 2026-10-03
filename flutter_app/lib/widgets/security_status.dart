@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../core/constants/colors.dart';
 
 class SecurityStatusBar extends StatelessWidget {
@@ -57,7 +58,10 @@ class SecurityStatusBar extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 1,
+                            ),
                             decoration: BoxDecoration(
                               color: UpayColors.riskLow,
                               borderRadius: BorderRadius.circular(4),
@@ -97,4 +101,3 @@ class SecurityStatusBar extends StatelessWidget {
     );
   }
 }
-
