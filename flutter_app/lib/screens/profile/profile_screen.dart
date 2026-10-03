@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
 import '../../core/constants/colors.dart';
 import '../../providers/auth_provider.dart';
 import '../login/login_screen.dart';
@@ -84,29 +83,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Text(
                       'অ্যাকাউন্ট তথ্য',
-                      style: GoogleFonts.hindSiliguri(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
+                      style: GoogleFonts.hindSiliguri(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                     const Divider(),
                     _infoRow('ইউজার আইডি', user?.id ?? 'USER001'),
-                    _infoRow(
-                      'অ্যাকাউন্টের বয়স',
-                      '${user?.accountAgeDays ?? 320} দিন',
-                    ),
-                    _infoRow(
-                      'নিবন্ধিত ইমেইল',
-                      user?.email ?? 'user@upay.com.bd',
-                    ),
-                    _infoRow(
-                      'বর্তমান ডিভাইস',
-                      user?.currentDeviceId ?? 'DEVICE001',
-                    ),
-                    _infoRow(
-                      'বর্তমান লোকেশন',
-                      user?.currentLocation ?? 'Dhaka, Bangladesh',
-                    ),
+                    _infoRow('অ্যাকাউন্টের বয়স', '${user?.accountAgeDays ?? 320} দিন'),
+                    _infoRow('নিবন্ধিত ইমেইল', user?.email ?? 'user@upay.com.bd'),
+                    _infoRow('বর্তমান ডিভাইস', user?.currentDeviceId ?? 'DEVICE001'),
+                    _infoRow('বর্তমান লোকেশন', user?.currentLocation ?? 'Dhaka, Bangladesh'),
                   ],
                 ),
               ),
@@ -119,9 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: UpayColors.primaryBlue.withOpacity(0.04),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: UpayColors.primaryBlue.withOpacity(0.2),
-                ),
+                side: BorderSide(color: UpayColors.primaryBlue.withOpacity(0.2)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -130,11 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(
-                          Icons.tune,
-                          color: UpayColors.primaryBlue,
-                          size: 20,
-                        ),
+                        const Icon(Icons.tune, color: UpayColors.primaryBlue, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'হ্যাকথন টেস্ট কন্ট্রোল (Judge Simulation Controls)',
@@ -149,10 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 6),
                     Text(
                       'সিমুলেট করুন কীভাবে নতুন ডিভাইস বা অস্বাভাবিক লোকেশন ঝুঁকি ইঞ্জিনকে ট্রিগার করে:',
-                      style: GoogleFonts.hindSiliguri(
-                        fontSize: 12,
-                        color: UpayColors.textMuted,
-                      ),
+                      style: GoogleFonts.hindSiliguri(fontSize: 12, color: UpayColors.textMuted),
                     ),
                     const SizedBox(height: 12),
 
@@ -160,15 +135,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         'নতুন অচেনা ডিভাইস সিমুলেশন (DEVICE009)',
-                        style: GoogleFonts.hindSiliguri(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: GoogleFonts.hindSiliguri(fontSize: 13, fontWeight: FontWeight.w600),
                       ),
                       subtitle: Text(
-                        _simulateNewDevice
-                            ? 'সক্রিয় (Unrecognized Device)'
-                            : 'বন্ধ (Trusted Device)',
+                        _simulateNewDevice ? 'সক্রিয় (Unrecognized Device)' : 'বন্ধ (Trusted Device)',
                         style: GoogleFonts.hindSiliguri(fontSize: 11),
                       ),
                       value: _simulateNewDevice,
@@ -176,9 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         setState(() => _simulateNewDevice = val);
                         auth.updateDeviceLocation(
                           deviceId: val ? 'DEVICE009' : 'DEVICE001',
-                          location: _simulateNewLocation
-                              ? 'Chattogram'
-                              : 'Dhaka',
+                          location: _simulateNewLocation ? 'Chattogram' : 'Dhaka',
                         );
                       },
                     ),
@@ -187,24 +155,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         'অস্বাভাবিক লোকেশন জাম্প সিমুলেশন (Chattogram)',
-                        style: GoogleFonts.hindSiliguri(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: GoogleFonts.hindSiliguri(fontSize: 13, fontWeight: FontWeight.w600),
                       ),
                       subtitle: Text(
-                        _simulateNewLocation
-                            ? 'চট্টগ্রাম (Unusual Geo-hop)'
-                            : 'ঢাকা (Home Location)',
+                        _simulateNewLocation ? 'চট্টগ্রাম (Unusual Geo-hop)' : 'ঢাকা (Home Location)',
                         style: GoogleFonts.hindSiliguri(fontSize: 11),
                       ),
                       value: _simulateNewLocation,
                       onChanged: (val) {
                         setState(() => _simulateNewLocation = val);
                         auth.updateDeviceLocation(
-                          deviceId: _simulateNewDevice
-                              ? 'DEVICE009'
-                              : 'DEVICE001',
+                          deviceId: _simulateNewDevice ? 'DEVICE009' : 'DEVICE001',
                           location: val ? 'Chattogram' : 'Dhaka',
                         );
                       },
@@ -256,19 +217,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: GoogleFonts.hindSiliguri(
-              color: UpayColors.textMuted,
-              fontSize: 13,
-            ),
-          ),
-          Text(
-            value,
-            style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
-          ),
+          Text(label, style: GoogleFonts.hindSiliguri(color: UpayColors.textMuted, fontSize: 13)),
+          Text(value, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13)),
         ],
       ),
     );
   }
 }
+

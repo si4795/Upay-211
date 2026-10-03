@@ -35,4 +35,3 @@ class TrustedDeviceInfo {
     this.isCurrent = false,
   });
 }
-

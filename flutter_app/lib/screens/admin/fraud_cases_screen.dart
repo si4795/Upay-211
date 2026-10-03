@@ -193,3 +193,4 @@ class _FraudCasesScreenState extends State<FraudCasesScreen> {
     );
   }
 }
+

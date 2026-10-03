@@ -65,3 +65,4 @@ class BanglaScamCheckResponse(BaseModel):
     category: str # Credential Request, Phishing, Prize Scam, Impersonation, Normal
     confidence: float
     detected_keywords: List[str]
+

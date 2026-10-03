@@ -41,11 +41,13 @@ class AnalyticsData {
       lowRiskCount: json['low_risk_count'] as int? ?? 25202,
       blockedCount: json['blocked_count'] as int? ?? 31,
       underReviewCount: json['under_review_count'] as int? ?? 18,
-      riskDistribution: (json['risk_distribution'] as Map<String, dynamic>?)?.map(
+      riskDistribution:
+          (json['risk_distribution'] as Map<String, dynamic>?)?.map(
             (k, v) => MapEntry(k, (v as num).toInt()),
           ) ??
           const {},
-      recentTrend: (json['recent_trend'] as List<dynamic>?)
+      recentTrend:
+          (json['recent_trend'] as List<dynamic>?)
               ?.map((e) => Map<String, dynamic>.from(e as Map))
               .toList() ??
           const [],
@@ -61,7 +63,8 @@ class AdminFraudCase {
   final int riskScore;
   final String riskLevel;
   final String reason;
-  String status; // Open, Under Review, Confirmed Suspicious, Resolved, False Positive
+  String
+  status; // Open, Under Review, Confirmed Suspicious, Resolved, False Positive
   String assignedAnalyst;
   final String createdTime;
 
@@ -115,7 +118,8 @@ class BanglaScamResult {
       isScam: json['is_scam'] as bool? ?? false,
       category: json['category'] as String? ?? 'Normal',
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
-      detectedKeywords: (json['detected_keywords'] as List<dynamic>?)
+      detectedKeywords:
+          (json['detected_keywords'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],

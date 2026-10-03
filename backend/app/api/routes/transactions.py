@@ -50,3 +50,4 @@ def get_user_transactions(user_id: str, request: Request):
         )
         for t in txns
     ]
+

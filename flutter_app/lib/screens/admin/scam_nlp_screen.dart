@@ -196,3 +196,4 @@ class _ScamNlpScreenState extends State<ScamNlpScreen> {
     );
   }
 }
+

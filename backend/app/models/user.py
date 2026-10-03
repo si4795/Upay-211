@@ -20,3 +20,4 @@ class UserLoginRequest(BaseModel):
     pin: str
     device_id: Optional[str] = "DEVICE001"
     location: Optional[str] = "Dhaka"
+

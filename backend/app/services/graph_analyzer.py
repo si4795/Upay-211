@@ -113,3 +113,4 @@ class GraphAnalyzer:
             'nodes': nodes_data,
             'edges': edges_data,
         }
+

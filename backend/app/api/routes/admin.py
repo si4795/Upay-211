@@ -177,3 +177,4 @@ def analyze_bangla_scam_text(payload: BanglaScamCheckRequest):
         confidence=confidence,
         detected_keywords=matched_keywords
     )
+

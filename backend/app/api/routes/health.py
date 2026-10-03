@@ -19,3 +19,4 @@ def health_check():
             "bangla_nlp": "active"
         }
     }
+
